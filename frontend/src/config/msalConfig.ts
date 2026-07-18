@@ -1,17 +1,10 @@
-import { MSALPublicClientApplicationOptions } from '@msal/browser';
+const clientId = import.meta.env.VITE_AZURE_CLIENT_ID || '';
+const tenantId = import.meta.env.VITE_AZURE_TENANT_ID || '';
 
-export const msalConfig: MSALPublicClientApplicationOptions = {
-  auth: {
-    clientId: process.env.REACT_APP_AZURE_CLIENT_ID || '',
-    authority: `https://login.microsoftonline.com/${process.env.REACT_APP_AZURE_TENANT_ID}`,
-    redirectUri: process.env.REACT_APP_REDIRECT_URI || 'http://localhost:3000',
-  },
-  cache: {
-    cacheLocation: 'localStorage',
-    storeAuthStateInCookie: false,
-  },
-};
+export const isAzureConfigured = Boolean(clientId && tenantId);
 
-export const loginRequest = {
-  scopes: ['User.Read'],
+export const azureConfig = {
+  clientId,
+  tenantId,
+  redirectUri: import.meta.env.VITE_REDIRECT_URI || window.location.origin,
 };

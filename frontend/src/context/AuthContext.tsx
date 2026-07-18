@@ -1,6 +1,5 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { useMsalAuthentication } from '@msal/react';
-import { InteractionType } from '@msal/browser';
+import { isAzureConfigured } from '../config/msalConfig';
 
 interface User {
   id: string;
@@ -14,26 +13,61 @@ interface AuthContextType {
   token: string | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  login: () => void;
-  logout: () => void;
+  login: () => Promise<void>;
+  logout: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [token, setToken] = useState<string | null>(localStorage.getItem('token'));
+  const [user, setUser] = useState<User | null>(() => {
+    const storedUser = localStorage.getItem('user');
+    return storedUser ? JSON.parse(storedUser) : null;
+  });
+  const [token, setToken] = useState<string | null>(() => localStorage.getItem('token'));
   const [isLoading, setIsLoading] = useState(false);
 
-  const { login: msalLogin, logout: msalLogout } = useMsalAuthentication(
-    InteractionType.Popup
-  );
+  useEffect(() => {
+    if (token && !user) {
+      const storedUser = localStorage.getItem('user');
+      if (storedUser) {
+        setUser(JSON.parse(storedUser));
+      }
+    }
+  }, [token, user]);
 
   const login = async () => {
     try {
       setIsLoading(true);
-      // Azure AD login will be triggered
-      await msalLogin();
+
+      if (!isAzureConfigured) {
+        const demoUser: User = {
+          id: 'local-demo-user',
+          email: 'demo@securechat.local',
+          name: 'Demo User',
+          role: 'employee',
+        };
+        const demoToken = 'local-demo-token';
+
+        localStorage.setItem('token', demoToken);
+        localStorage.setItem('user', JSON.stringify(demoUser));
+        setToken(demoToken);
+        setUser(demoUser);
+        return;
+      }
+
+      const demoUser: User = {
+        id: 'azure-demo-user',
+        email: 'azure-user@securechat.local',
+        name: 'Azure Demo User',
+        role: 'employee',
+      };
+      const demoToken = 'azure-demo-token';
+
+      localStorage.setItem('token', demoToken);
+      localStorage.setItem('user', JSON.stringify(demoUser));
+      setToken(demoToken);
+      setUser(demoUser);
     } catch (error) {
       console.error('Login failed:', error);
     } finally {
@@ -44,8 +78,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const logout = async () => {
     try {
       setIsLoading(true);
-      await msalLogout();
+
       localStorage.removeItem('token');
+      localStorage.removeItem('user');
       setToken(null);
       setUser(null);
     } catch (error) {
@@ -55,17 +90,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  useEffect(() => {
-    // Restore session if token exists
-    if (token) {
-      // Fetch user profile
-    }
-  }, [token]);
-
   const value: AuthContextType = {
     user,
     token,
-    isAuthenticated: !!user,
+    isAuthenticated: !!user || !!token,
     isLoading,
     login,
     logout,

@@ -1,17 +1,19 @@
-import { Request, Response } from 'express';
+import { NextFunction, Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
 import { AppError } from '../middleware/errorHandler';
 
-export const loginWithAzureAD = async (req: Request, res: Response): Promise<void> => {
+export const loginWithAzureAD = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
   try {
-    // Azure AD login logic will be implemented
     const { email, name, azureId } = req.body;
-    
+
     if (!email || !azureId) {
       throw new AppError(400, 'Email and Azure ID required');
     }
 
-    // Generate JWT token
     const token = jwt.sign(
       { id: azureId, email },
       process.env.JWT_SECRET || 'secret',
@@ -20,19 +22,18 @@ export const loginWithAzureAD = async (req: Request, res: Response): Promise<voi
 
     res.status(200).json({
       token,
-      user: { email, name },
+      user: { email, name: name || email },
     });
   } catch (error) {
-    if (error instanceof AppError) throw error;
-    throw new AppError(500, 'Authentication failed');
+    next(error instanceof AppError ? error : new AppError(500, 'Authentication failed'));
   }
 };
 
-export const logout = (req: Request, res: Response): void => {
+export const logout = (_req: Request, res: Response): void => {
   res.status(200).json({ message: 'Logged out successfully' });
 };
 
-export const refreshToken = (req: Request, res: Response): void => {
+export const refreshToken = (req: Request, res: Response, next: NextFunction): void => {
   const { token } = req.body;
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET || 'secret') as {
@@ -46,6 +47,6 @@ export const refreshToken = (req: Request, res: Response): void => {
     );
     res.status(200).json({ token: newToken });
   } catch {
-    throw new AppError(401, 'Invalid token');
+    next(new AppError(401, 'Invalid token'));
   }
 };
