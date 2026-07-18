@@ -1,8 +1,8 @@
-import { Request, Response } from 'express';
+import { Response } from 'express';
 import { AuthRequest } from '../middleware/auth';
 import { AppError } from '../middleware/errorHandler';
 
-export const getEngagementMetrics = async (req: AuthRequest, res: Response): Promise<void> => {
+export const getEngagementMetrics = async (_req: AuthRequest, res: Response): Promise<void> => {
   try {
     // Fetch engagement metrics from database
     res.status(200).json({
@@ -16,7 +16,7 @@ export const getEngagementMetrics = async (req: AuthRequest, res: Response): Pro
   }
 };
 
-export const getTrainingProgress = async (req: AuthRequest, res: Response): Promise<void> => {
+export const getTrainingProgress = async (_req: AuthRequest, res: Response): Promise<void> => {
   try {
     // Fetch training progress from database
     res.status(200).json({
@@ -31,7 +31,7 @@ export const getTrainingProgress = async (req: AuthRequest, res: Response): Prom
 
 export const generateReport = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const { startDate, endDate, format } = req.body;
+    const { format } = req.body;
     // Generate report
     res.status(200).json({
       reportId: 'report-id',
@@ -43,7 +43,7 @@ export const generateReport = async (req: AuthRequest, res: Response): Promise<v
   }
 };
 
-export const getPhishingSimulationStats = async (req: AuthRequest, res: Response): Promise<void> => {
+export const getPhishingSimulationStats = async (_req: AuthRequest, res: Response): Promise<void> => {
   try {
     // Fetch phishing simulation statistics
     res.status(200).json({

@@ -12,8 +12,12 @@ Always maintain a professional yet friendly tone. Focus on practical, actionable
 
 export const generateChatbotResponse = async (
   userMessage: string,
-  chatId: string
+  _chatId: string
 ): Promise<string> => {
+  if (!openai) {
+    return `I’m running in local mode without an OpenAI key. You can still continue the conversation, and I’ll respond with a safe fallback. Your message was: ${userMessage}`;
+  }
+
   try {
     const response = await openai.chat.completions.create({
       model: process.env.OPENAI_MODEL || 'gpt-4',
@@ -33,13 +37,21 @@ export const generateChatbotResponse = async (
 
     return response.choices[0]?.message?.content || 'Unable to generate response';
   } catch (error) {
-    throw new Error('Failed to generate AI response');
+    return 'I’m unable to reach the AI service right now, but I can still help with general cybersecurity guidance.';
   }
 };
 
 export const analyzePhishingAttempt = async (
   emailContent: string
 ): Promise<{ isPhishing: boolean; confidence: number; reason: string }> => {
+  if (!openai) {
+    return {
+      isPhishing: false,
+      confidence: 0,
+      reason: 'OpenAI service is not configured in local mode.',
+    };
+  }
+
   try {
     const response = await openai.chat.completions.create({
       model: process.env.OPENAI_MODEL || 'gpt-4',
@@ -61,6 +73,10 @@ export const analyzePhishingAttempt = async (
     const content = response.choices[0]?.message?.content || '{}';
     return JSON.parse(content);
   } catch (error) {
-    throw new Error('Failed to analyze phishing attempt');
+    return {
+      isPhishing: false,
+      confidence: 0,
+      reason: 'Unable to analyze phishing attempt at the moment.',
+    };
   }
 };

@@ -11,7 +11,7 @@ interface AuthRequest extends Request {
 
 export const authenticateToken = (
   req: AuthRequest,
-  res: Response,
+  _res: Response,
   next: NextFunction
 ): void => {
   const token = req.headers.authorization?.split(' ')[1];

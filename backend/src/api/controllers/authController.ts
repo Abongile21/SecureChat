@@ -16,8 +16,8 @@ export const loginWithAzureAD = async (
 
     const token = jwt.sign(
       { id: azureId, email },
-      process.env.JWT_SECRET || 'secret',
-      { expiresIn: process.env.JWT_EXPIRE || '7d' }
+      (process.env.JWT_SECRET || 'secret') as string,
+      { expiresIn: process.env.JWT_EXPIRE || '7d' } as jwt.SignOptions
     );
 
     res.status(200).json({
@@ -42,8 +42,8 @@ export const refreshToken = (req: Request, res: Response, next: NextFunction): v
     };
     const newToken = jwt.sign(
       { id: decoded.id, email: decoded.email },
-      process.env.JWT_SECRET || 'secret',
-      { expiresIn: process.env.JWT_EXPIRE || '7d' }
+      (process.env.JWT_SECRET || 'secret') as string,
+      { expiresIn: process.env.JWT_EXPIRE || '7d' } as jwt.SignOptions
     );
     res.status(200).json({ token: newToken });
   } catch {

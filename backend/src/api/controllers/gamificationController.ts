@@ -1,8 +1,8 @@
-import { Request, Response } from 'express';
+import { Response } from 'express';
 import { AuthRequest } from '../middleware/auth';
 import { AppError } from '../middleware/errorHandler';
 
-export const getLeaderboard = async (req: AuthRequest, res: Response): Promise<void> => {
+export const getLeaderboard = async (_req: AuthRequest, res: Response): Promise<void> => {
   try {
     // Fetch leaderboard from database
     res.status(200).json({
@@ -30,7 +30,7 @@ export const getUserAchievements = async (req: AuthRequest, res: Response): Prom
 
 export const awardPoints = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const { userId, points, reason } = req.body;
+    const { userId, points } = req.body;
     // Award points to user
     res.status(200).json({
       message: 'Points awarded successfully',
@@ -42,7 +42,7 @@ export const awardPoints = async (req: AuthRequest, res: Response): Promise<void
   }
 };
 
-export const getBadges = async (req: AuthRequest, res: Response): Promise<void> => {
+export const getBadges = async (_req: AuthRequest, res: Response): Promise<void> => {
   try {
     // Fetch available badges
     res.status(200).json({

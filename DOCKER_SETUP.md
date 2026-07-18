@@ -121,7 +121,7 @@ kill -9 <PID>  # Kill process
 # Check database logs
 docker-compose logs postgres
 
-# Verify database is running
+# Verify database is runnicdng
 docker-compose exec postgres psql -U postgres -c "SELECT 1"
 ```
 

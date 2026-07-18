@@ -1,4 +1,4 @@
-import { Request, Response } from 'express';
+import { Response } from 'express';
 import { AuthRequest } from '../middleware/auth';
 import { AppError } from '../middleware/errorHandler';
 import { generateChatbotResponse } from '../../services/aiService';
@@ -6,7 +6,6 @@ import { generateChatbotResponse } from '../../services/aiService';
 export const sendMessage = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { chatId, message } = req.body;
-    const userId = req.user?.id;
 
     if (!message || !chatId) {
       throw new AppError(400, 'Message and chat ID required');
@@ -40,7 +39,7 @@ export const getChatHistory = async (req: AuthRequest, res: Response): Promise<v
   }
 };
 
-export const startNewChat = async (req: AuthRequest, res: Response): Promise<void> => {
+export const startNewChat = async (_req: AuthRequest, res: Response): Promise<void> => {
   try {
     // Create new chat session
     res.status(201).json({
