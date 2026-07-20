@@ -14,7 +14,24 @@ import analyticsRoutes from './api/routes/analyticsRoutes';
 dotenv.config();
 
 const app: Express = express();
-const PORT = process.env.PORT || 5000;
+const DEFAULT_PORT = Number(process.env.PORT) || 5000;
+
+const startServer = (port: number) => {
+  const server = app.listen(port, '0.0.0.0', () => {
+    logger.info(`Server running on port ${port}`);
+  });
+
+  server.on('error', (error: NodeJS.ErrnoException) => {
+    if (error.code === 'EADDRINUSE') {
+      logger.warn(`Port ${port} is busy. Trying ${port + 1}...`);
+      startServer(port + 1);
+      return;
+    }
+
+    logger.error('Failed to start server', error);
+    process.exit(1);
+  });
+};
 
 // Middleware
 app.use(helmet());
@@ -52,8 +69,6 @@ app.use((_req: Request, res: Response) => {
 app.use(errorHandler);
 
 // Start server
-app.listen(PORT, () => {
-  logger.info(`Server running on port ${PORT}`);
-});
+startServer(DEFAULT_PORT);
 
 export default app;
