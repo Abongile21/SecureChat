@@ -1,21 +1,34 @@
 export default function Chat() {
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-8">Security Chat</h1>
-      <div className="flex h-[600px] border rounded-lg">
-        <div className="flex-1 flex flex-col">
-          <div className="flex-1 overflow-y-auto p-4 bg-gray-50">
-            {/* Chat messages will go here */}
-            <p className="text-gray-500">Start a conversation about cybersecurity</p>
+    <div className="space-y-6">
+      <section className="rounded-3xl border border-white/10 bg-slate-900/70 p-6 shadow-2xl shadow-black/20 backdrop-blur">
+        <p className="text-sm font-semibold uppercase tracking-[0.35em] text-cyan-300">AI training assistant</p>
+        <h2 className="mt-2 text-3xl font-semibold text-white">Ask anything about cyber safety.</h2>
+        <p className="mt-3 max-w-2xl text-sm leading-7 text-slate-400">
+          Explore phishing scenarios, password hygiene, and secure habits with a conversational guide built for learning.
+        </p>
+      </section>
+
+      <div className="rounded-3xl border border-white/10 bg-slate-900/70 shadow-2xl shadow-black/20 backdrop-blur">
+        <div className="flex h-[620px] flex-col">
+          <div className="flex-1 overflow-y-auto p-5 sm:p-6">
+            <div className="space-y-4">
+              <div className="max-w-xl rounded-2xl bg-cyan-500/10 p-4 text-sm leading-7 text-slate-300">
+                Hello! I can help you spot phishing emails, improve password habits, and explain secure messaging practices.
+              </div>
+              <div className="ml-auto max-w-xl rounded-2xl bg-white/10 p-4 text-sm leading-7 text-slate-200">
+                Tell me how to identify a suspicious link in an email.
+              </div>
+            </div>
           </div>
-          <div className="border-t p-4">
-            <div className="flex gap-2">
+          <div className="border-t border-white/10 p-4 sm:p-5">
+            <div className="flex flex-col gap-3 sm:flex-row">
               <input
                 type="text"
                 placeholder="Ask about security..."
-                className="flex-1 px-4 py-2 border rounded-lg"
+                className="flex-1 rounded-2xl border border-white/10 bg-white/10 px-4 py-3 text-sm text-white outline-none placeholder:text-slate-400 focus:border-cyan-400"
               />
-              <button className="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600">
+              <button className="rounded-2xl bg-gradient-to-r from-cyan-500 to-violet-500 px-6 py-3 text-sm font-semibold text-white transition hover:opacity-90">
                 Send
               </button>
             </div>
