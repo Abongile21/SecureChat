@@ -1,3 +1,4 @@
+import path from 'path';
 import knex from 'knex';
 import dotenv from 'dotenv';
 
@@ -13,11 +14,11 @@ const db = knex({
     database: process.env.DB_NAME || 'securechat_db',
   },
   migrations: {
-    directory: '../../database/migrations',
+    directory: path.join(__dirname, '../../database/migrations'),
     extension: 'ts',
   },
   seeds: {
-    directory: '../../database/seeds',
+    directory: path.join(__dirname, '../../database/seeds'),
     extension: 'ts',
   },
 });
