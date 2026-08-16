@@ -1,8 +1,22 @@
+import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { isAzureConfigured } from '../config/msalConfig';
 
 export default function Login() {
-  const { login, isLoading } = useAuth();
+  const { login, isLoading, isAuthenticated } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (isAuthenticated && !isLoading) {
+      navigate('/dashboard', { replace: true });
+    }
+  }, [isAuthenticated, isLoading, navigate]);
+
+  const handleLogin = async () => {
+    await login();
+    navigate('/dashboard', { replace: true });
+  };
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-[radial-gradient(circle_at_top_left,_rgba(34,211,238,0.25),_transparent_35%),linear-gradient(135deg,_#07111f_0%,_#111827_55%,_#1f2937_100%)] px-4 py-10">
@@ -28,7 +42,7 @@ export default function Login() {
                 : 'Azure is not configured yet, so this demo uses a local sign-in flow.'}
             </p>
             <button
-              onClick={() => login()}
+              onClick={handleLogin}
               disabled={isLoading}
               className="w-full rounded-2xl bg-gradient-to-r from-cyan-500 to-violet-500 px-6 py-3 text-base font-semibold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-70"
             >

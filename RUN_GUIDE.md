@@ -51,7 +51,7 @@ FRONTEND_URL=http://localhost:3000
 If PostgreSQL is not running locally, start it and create the database:
 
 ```sql
-CREATE DATABASE securechat_db;
+c;
 ```
 
 ### 3.4 Run migrations and seeds
