@@ -10,26 +10,29 @@ const SYSTEM_PROMPT = `You are SecureChat, an AI-powered cybersecurity awareness
 
 Always maintain a professional yet friendly tone. Focus on practical, actionable advice.`;
 
+const MAX_MESSAGE_LENGTH = 2000;
+const MAX_CONTEXT_MESSAGES = 10;
+
 export const generateChatbotResponse = async (
   userMessage: string,
-  _chatId: string
+  _chatId: string,
+  context: Array<{ role: 'user' | 'assistant'; content: string }> = []
 ): Promise<string> => {
+  const boundedMessage = userMessage.trim().slice(0, MAX_MESSAGE_LENGTH);
   if (!openai) {
-    return `I’m running in local mode without an OpenAI key. You can still continue the conversation, and I’ll respond with a safe fallback. Your message was: ${userMessage}`;
+    return `I am running in local mode without an OpenAI key. Your message was: ${boundedMessage}`;
   }
 
   try {
     const response = await openai.chat.completions.create({
-      model: process.env.OPENAI_MODEL || 'gpt-4',
+      model: process.env.OPENAI_MODEL || 'gpt-4o-mini',
       messages: [
         {
           role: 'system',
           content: SYSTEM_PROMPT,
         },
-        {
-          role: 'user',
-          content: userMessage,
-        },
+        ...context.slice(-MAX_CONTEXT_MESSAGES),
+        { role: 'user', content: boundedMessage },
       ],
       temperature: 0.7,
       max_tokens: 500,
@@ -54,7 +57,7 @@ export const analyzePhishingAttempt = async (
 
   try {
     const response = await openai.chat.completions.create({
-      model: process.env.OPENAI_MODEL || 'gpt-4',
+      model: process.env.OPENAI_MODEL || 'gpt-4o-mini',
       messages: [
         {
           role: 'system',

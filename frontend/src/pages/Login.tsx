@@ -1,11 +1,15 @@
-import { useEffect } from 'react';
+import { FormEvent, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { isAzureConfigured } from '../config/msalConfig';
 
 export default function Login() {
-  const { login, isLoading, isAuthenticated } = useAuth();
+  const { login, register, isLoading, isAuthenticated } = useAuth();
   const navigate = useNavigate();
+  const [isRegistering, setIsRegistering] = useState(false);
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
 
   useEffect(() => {
     if (isAuthenticated && !isLoading) {
@@ -13,9 +17,16 @@ export default function Login() {
     }
   }, [isAuthenticated, isLoading, navigate]);
 
-  const handleLogin = async () => {
-    await login();
-    navigate('/dashboard', { replace: true });
+  const handleSubmit = async (event: FormEvent) => {
+    event.preventDefault();
+    setError('');
+    try {
+      if (isRegistering) await register(name, email, password);
+      else await login(email, password);
+      navigate('/chat', { replace: true });
+    } catch {
+      setError('Unable to authenticate. Check your details and try again.');
+    }
   };
 
   return (
@@ -37,16 +48,19 @@ export default function Login() {
           <div className="p-8 sm:p-10 lg:p-12">
             <h2 className="mb-3 text-2xl font-semibold text-white">Welcome back</h2>
             <p className="mb-8 text-sm leading-7 text-slate-400">
-              {isAzureConfigured
-                ? 'Sign in with your Microsoft account to continue.'
-                : 'Azure is not configured yet, so this demo uses a local sign-in flow.'}
+              Use an account created for this demo. Passwords are sent only to the backend over HTTPS.
             </p>
-            <button
-              onClick={handleLogin}
-              disabled={isLoading}
-              className="w-full rounded-2xl bg-gradient-to-r from-cyan-500 to-violet-500 px-6 py-3 text-base font-semibold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-70"
-            >
-              {isLoading ? 'Signing in...' : isAzureConfigured ? 'Sign in with Microsoft' : 'Continue in demo mode'}
+            <form onSubmit={handleSubmit} className="space-y-4">
+              {isRegistering && <input value={name} onChange={(event) => setName(event.target.value)} placeholder="Name" required minLength={2} className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white" />}
+              <input type="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="Email" required className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white" />
+              <input type="password" value={password} onChange={(event) => setPassword(event.target.value)} placeholder="Password (12+ characters)" required minLength={12} className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white" />
+              {error && <p role="alert" className="text-sm text-rose-300">{error}</p>}
+              <button type="submit" disabled={isLoading} className="w-full rounded-2xl bg-gradient-to-r from-cyan-500 to-violet-500 px-6 py-3 text-base font-semibold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-70">
+                {isLoading ? 'Working...' : isRegistering ? 'Create account' : 'Sign in'}
+              </button>
+            </form>
+            <button type="button" onClick={() => setIsRegistering((current) => !current)} className="mt-4 text-sm text-cyan-300 hover:text-cyan-200">
+              {isRegistering ? 'Already have an account? Sign in' : 'Need an account? Register'}
             </button>
             <div className="mt-6 rounded-2xl border border-white/10 bg-white/5 p-4 text-sm text-slate-400">
               Tip: if you are testing locally, you can continue instantly with the demo experience.

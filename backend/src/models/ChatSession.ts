@@ -42,7 +42,12 @@ export const ChatSession = {
     return message;
   },
 
-  async getMessages(chatSessionId: string): Promise<ChatMessage[]> {
-    return db('chat_messages').where({ chat_session_id: chatSessionId }).orderBy('created_at', 'asc');
+  async getMessages(chatSessionId: string, limit = 20, offset = 0): Promise<ChatMessage[]> {
+    return db('chat_messages')
+      .where({ chat_session_id: chatSessionId })
+      .orderBy('created_at', 'desc')
+      .limit(limit)
+      .offset(offset)
+      .then((messages) => messages.reverse());
   },
 };

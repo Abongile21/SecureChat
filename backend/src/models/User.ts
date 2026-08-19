@@ -4,7 +4,8 @@ export interface User {
   id: string;
   email: string;
   name: string;
-  azure_id: string;
+  password_hash?: string;
+  azure_id?: string;
   role: 'employee' | 'manager' | 'admin';
   total_points: number;
   current_rank: number;

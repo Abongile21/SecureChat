@@ -1,10 +1,12 @@
 import { Router } from 'express';
-import { loginWithAzureAD, logout, refreshToken } from '../controllers/authController';
+import { login, loginWithAzureAD, logout, refreshToken, register } from '../controllers/authController';
 
 const router = Router();
 
 // Authentication endpoints
-router.post('/login', loginWithAzureAD);
+router.post('/register', register);
+router.post('/login', login);
+router.post('/azure-login', loginWithAzureAD);
 router.post('/logout', logout);
 router.post('/refresh-token', refreshToken);
 

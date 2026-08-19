@@ -6,6 +6,7 @@ export async function up(knex: Knex): Promise<void> {
     table.uuid('id').primary().defaultTo(knex.raw('gen_random_uuid()'));
     table.string('email').unique().notNullable();
     table.string('name').notNullable();
+    table.string('password_hash');
     table.string('azure_id').unique();
     table.enum('role', ['employee', 'manager', 'admin']).defaultTo('employee');
     table.integer('total_points').defaultTo(0);
@@ -21,6 +22,7 @@ export async function up(knex: Knex): Promise<void> {
     table.text('topic');
     table.timestamp('started_at').defaultTo(knex.fn.now());
     table.timestamp('ended_at');
+    table.index(['user_id', 'started_at']);
   });
 
   // Chat messages table
@@ -32,6 +34,7 @@ export async function up(knex: Knex): Promise<void> {
     table.text('bot_response').notNullable();
     table.integer('points_awarded').defaultTo(0);
     table.timestamp('created_at').defaultTo(knex.fn.now());
+    table.index(['chat_session_id', 'created_at']);
   });
 
   // Badges table

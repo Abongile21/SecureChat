@@ -14,14 +14,17 @@ export const authenticateToken = (
   _res: Response,
   next: NextFunction
 ): void => {
-  const token = req.headers.authorization?.split(' ')[1];
+  const authorization = req.headers.authorization;
+  const token = authorization?.startsWith('Bearer ') ? authorization.slice(7) : undefined;
 
   if (!token) {
     throw new AppError(401, 'No token provided');
   }
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'secret') as {
+    const jwtSecret = process.env.JWT_SECRET;
+    if (!jwtSecret) throw new AppError(500, 'Authentication is not configured');
+    const decoded = jwt.verify(token, jwtSecret) as {
       id: string;
       email: string;
     };

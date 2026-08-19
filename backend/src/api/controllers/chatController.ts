@@ -9,7 +9,7 @@ export const sendMessage = async (req: AuthRequest, res: Response): Promise<void
     const { chatId, message } = req.body;
     const userId = req.user?.id;
 
-    if (!message || !chatId || !userId) {
+    if (!message || !chatId || !userId || typeof message !== 'string' || message.trim().length > 2000) {
       throw new AppError(400, 'Message, chat ID, and authenticated user are required');
     }
 
@@ -19,7 +19,11 @@ export const sendMessage = async (req: AuthRequest, res: Response): Promise<void
     }
 
     // Get AI response
-    const response = await generateChatbotResponse(message, chatId);
+    const context = await ChatSession.getMessages(chatId, 10);
+    const response = await generateChatbotResponse(message, chatId, context.flatMap((item) => [
+      { role: 'user' as const, content: item.user_message },
+      { role: 'assistant' as const, content: item.bot_response },
+    ]));
 
     const savedMessage = await ChatSession.addMessage(chatId, userId, message.trim(), response);
 
@@ -47,9 +51,13 @@ export const getChatHistory = async (req: AuthRequest, res: Response): Promise<v
       throw new AppError(404, 'Conversation not found');
     }
 
-    const messages = await ChatSession.getMessages(chatId);
+    const page = Math.max(Number.parseInt(String(req.query.page || '1'), 10) || 1, 1);
+    const limit = Math.min(Math.max(Number.parseInt(String(req.query.limit || '20'), 10) || 20, 1), 50);
+    const messages = await ChatSession.getMessages(chatId, limit, (page - 1) * limit);
     res.status(200).json({
       chatId,
+      page,
+      limit,
       messages: messages.flatMap((item) => [
         { id: `${item.id}:user`, role: 'user', content: item.user_message, timestamp: item.created_at },
         { id: `${item.id}:assistant`, role: 'assistant', content: item.bot_response, timestamp: item.created_at },

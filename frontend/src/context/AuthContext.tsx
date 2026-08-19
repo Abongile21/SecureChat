@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { isAzureConfigured } from '../config/msalConfig';
+import apiClient from '../services/apiClient';
 
 interface User {
   id: string;
@@ -13,7 +13,8 @@ interface AuthContextType {
   token: string | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  login: () => Promise<void>;
+  login: (email: string, password: string) => Promise<void>;
+  register: (name: string, email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
 }
 
@@ -36,40 +37,28 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   }, [token, user]);
 
-  const login = async () => {
+  const applySession = (session: { token: string; user: User }) => {
+    localStorage.setItem('token', session.token);
+    localStorage.setItem('user', JSON.stringify(session.user));
+    setToken(session.token);
+    setUser(session.user);
+  };
+
+  const login = async (email: string, password: string) => {
     try {
       setIsLoading(true);
+      const response = await apiClient.post('/auth/login', { email, password });
+      applySession(response.data);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-      if (!isAzureConfigured) {
-        const demoUser: User = {
-          id: 'local-demo-user',
-          email: 'demo@securechat.local',
-          name: 'Demo User',
-          role: 'employee',
-        };
-        const demoToken = 'local-demo-token';
-
-        localStorage.setItem('token', demoToken);
-        localStorage.setItem('user', JSON.stringify(demoUser));
-        setToken(demoToken);
-        setUser(demoUser);
-        return;
-      }
-
-      const demoUser: User = {
-        id: 'azure-demo-user',
-        email: 'azure-user@securechat.local',
-        name: 'Azure Demo User',
-        role: 'employee',
-      };
-      const demoToken = 'azure-demo-token';
-
-      localStorage.setItem('token', demoToken);
-      localStorage.setItem('user', JSON.stringify(demoUser));
-      setToken(demoToken);
-      setUser(demoUser);
-    } catch (error) {
-      console.error('Login failed:', error);
+  const register = async (name: string, email: string, password: string) => {
+    try {
+      setIsLoading(true);
+      const response = await apiClient.post('/auth/register', { name, email, password });
+      applySession(response.data);
     } finally {
       setIsLoading(false);
     }
