@@ -1,6 +1,8 @@
 import { useMemo, useState } from 'react';
+import { useEffect } from 'react';
+import { chatService } from '../services/chatService';
 
-type Message = { id: number; text: string; time: string; mine: boolean; read?: boolean; replyTo?: string };
+type Message = { id: string | number; text: string; time: string; mine: boolean; read?: boolean; replyTo?: string };
 type Conversation = { id: string; name: string; initials: string; preview: string; time: string; unread: number; messages: Message[] };
 
 const initialConversations: Conversation[] = [
@@ -38,25 +40,61 @@ function Icon({ name }: { name: 'search' | 'plus' | 'arrow' | 'check' | 'more' |
 
 export default function Chat() {
   const [conversations, setConversations] = useState(initialConversations);
-  const [selectedId, setSelectedId] = useState('maya');
+  const [selectedId, setSelectedId] = useState('phishing');
   const [query, setQuery] = useState('');
   const [messageQuery, setMessageQuery] = useState('');
   const [draft, setDraft] = useState('');
   const [replyTo, setReplyTo] = useState<Message | null>(null);
   const [mobileChatOpen, setMobileChatOpen] = useState(false);
+  const [isSending, setIsSending] = useState(false);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    let active = true;
+    const loadConversation = async () => {
+      try {
+        const storedChatId = localStorage.getItem('securechat.currentChatId');
+        const response = storedChatId
+          ? await chatService.getChatHistory(storedChatId)
+          : await chatService.startNewChat();
+        const chatId = storedChatId || response.data.chatId;
+        const history = storedChatId ? response.data.messages : [];
+        if (!active) return;
+        localStorage.setItem('securechat.currentChatId', chatId);
+        setConversations([{ id: chatId, name: 'SecureChat AI', initials: 'AI', preview: 'Your private learning session.', time: 'Now', unread: 0, messages: history.map((message: { id: string; role: string; content: string; timestamp: string }) => ({ id: message.id, text: message.content, time: new Date(message.timestamp).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }), mine: message.role === 'user', read: true })) }]);
+        setSelectedId(chatId);
+      } catch {
+        if (active) setError('The chat service is unavailable. Try again shortly.');
+      }
+    };
+    void loadConversation();
+    return () => { active = false; };
+  }, []);
 
   const selected = conversations.find((conversation) => conversation.id === selectedId) ?? conversations[0];
   const visibleConversations = useMemo(() => conversations.filter((conversation) => conversation.name.toLowerCase().includes(query.toLowerCase())), [conversations, query]);
   const visibleMessages = selected.messages.filter((message) => message.text.toLowerCase().includes(messageQuery.toLowerCase()));
 
   const openConversation = (id: string) => { setSelectedId(id); setMobileChatOpen(true); };
-  const sendMessage = () => {
+  const sendMessage = async () => {
     const text = draft.trim();
-    if (!text) return;
-    const message: Message = { id: Date.now(), text, time: 'Now', mine: true, read: false, replyTo: replyTo?.text };
+    if (!text || isSending || !selected) return;
+    if (text.length > 2000) { setError('Messages must be 2,000 characters or fewer.'); return; }
+    const message: Message = { id: `${Date.now()}:user`, text, time: 'Now', mine: true, read: false, replyTo: replyTo?.text };
     setConversations((current) => current.map((conversation) => conversation.id === selected.id ? { ...conversation, preview: text, time: 'Now', messages: [...conversation.messages, message] } : conversation));
     setDraft('');
     setReplyTo(null);
+    setError('');
+    setIsSending(true);
+    try {
+      const response = await chatService.sendMessage(selected.id, text);
+      const assistantMessage: Message = { id: `${response.data.messageId}:assistant`, text: response.data.botResponse, time: new Date(response.data.timestamp).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }), mine: false };
+      setConversations((current) => current.map((conversation) => conversation.id === selected.id ? { ...conversation, preview: assistantMessage.text, messages: [...conversation.messages, assistantMessage] } : conversation));
+    } catch {
+      setError('Your message could not be sent. Please try again.');
+    } finally {
+      setIsSending(false);
+    }
   };
 
   return (
@@ -84,6 +122,8 @@ export default function Chat() {
         </header>
         <div className="message-toolbar"><span>Learning session</span><label className="message-search"><Icon name="search" /><span className="sr-only">Search lesson</span><input id="message-search" value={messageQuery} onChange={(event) => setMessageQuery(event.target.value)} placeholder="Search this lesson" /></label></div>
         <div className="message-history" aria-live="polite">
+          {error && <p role="alert" className="mb-3 text-sm text-rose-300">{error}</p>}
+            <div className="composer-wrap"><div className="typing-indicator">{isSending ? 'SecureChat is thinking...' : 'SecureChat is ready to help'}<span>...</span></div><form className="composer" onSubmit={(event) => { event.preventDefault(); void sendMessage(); }}><button type="button" className="icon-button" aria-label="Add reaction" title="Add reaction"><Icon name="smile" /></button><input maxLength={2000} value={draft} onChange={(event) => setDraft(event.target.value)} placeholder="Ask a cybersecurity question" aria-label={`Ask about ${selected.name}`} /><button type="submit" disabled={isSending} className="send-button" aria-label="Send question" title="Send question"><Icon name="send" /></button></form></div>
           {visibleMessages.length ? visibleMessages.map((message) => <div key={message.id} className={`message-row ${message.mine ? 'mine' : ''}`}><div className="message-bubble">{message.replyTo && <div className="reply-preview">Replying to: {message.replyTo}</div>}<p>{message.text}</p><div className="message-meta"><time>{message.time}</time>{message.mine && <span aria-label={message.read ? 'Read' : 'Delivered'} className={message.read ? 'read' : ''}><Icon name="check" /><Icon name="check" /></span>}<button onClick={() => setReplyTo(message)} aria-label={`Reply to ${message.text}`}>Reply</button></div></div></div>) : <div className="empty-state"><span className="empty-icon"><Icon name="search" /></span><strong>No messages found</strong><span>Try another search term.</span></div>}
         </div>
         <div className="composer-wrap">{replyTo && <div className="reply-bar"><span>Replying to <strong>{replyTo.text}</strong></span><button onClick={() => setReplyTo(null)} aria-label="Cancel reply">Cancel</button></div>}<div className="typing-indicator">SecureChat is ready to help<span>...</span></div><form className="composer" onSubmit={(event) => { event.preventDefault(); sendMessage(); }}><button type="button" className="icon-button" aria-label="Add reaction" title="Add reaction"><Icon name="smile" /></button><input value={draft} onChange={(event) => setDraft(event.target.value)} placeholder="Ask a cybersecurity question" aria-label={`Ask about ${selected.name}`} /><button type="submit" className="send-button" aria-label="Send question" title="Send question"><Icon name="send" /></button></form></div>
