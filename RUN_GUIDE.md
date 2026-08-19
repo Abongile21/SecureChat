@@ -143,6 +143,8 @@ docker-compose exec backend npm run db:seed
 
 ## 7. Azure setup
 
+For the complete low-cost Azure plan, resource settings, GitHub Actions secrets, migration order, and budget alerts, use [docs/AZURE_LOW_COST_DEPLOYMENT.md](docs/AZURE_LOW_COST_DEPLOYMENT.md).
+
 ### 7.1 Create an Entra ID app registration
 
 1. Open Azure Portal

@@ -1,5 +1,7 @@
 # Deployment Guide
 
+> This document contains older multi-provider examples. The supported low-cost deployment for SecureChat is documented in [AZURE_LOW_COST_DEPLOYMENT.md](AZURE_LOW_COST_DEPLOYMENT.md). Do not follow the Heroku, AWS, Redis, Kubernetes, or premium networking examples for the three-month demo.
+
 ## Pre-Deployment Checklist
 
 - [ ] All tests passing

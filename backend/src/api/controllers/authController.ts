@@ -40,29 +40,6 @@ export const login = async (req: Request, res: Response, next: NextFunction): Pr
   }
 };
 
-export const loginWithAzureAD = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-): Promise<void> => {
-  try {
-    const { email, name, azureId } = req.body;
-
-    if (!email || !azureId) {
-      throw new AppError(400, 'Email and Azure ID required');
-    }
-
-    const token = issueToken(azureId, email);
-
-    res.status(200).json({
-      token,
-      user: { email, name: name || email },
-    });
-  } catch (error) {
-    next(error instanceof AppError ? error : new AppError(500, 'Authentication failed'));
-  }
-};
-
 export const logout = (_req: Request, res: Response): void => {
   res.status(200).json({ message: 'Logged out successfully' });
 };
