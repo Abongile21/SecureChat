@@ -28,7 +28,7 @@ az group create --name securechat-rg --location eastus
 
 # Use the smallest eligible Linux plan. Do not enable autoscale.
 az appservice plan create --name securechat-plan --resource-group securechat-rg --is-linux --sku F1
-az webapp create --name <globally-unique-api-name> --resource-group securechat-rg --plan securechat-plan --runtime "NODE:18-lts"
+az webapp create --name <globally-unique-api-name> --resource-group securechat-rg --plan securechat-plan --runtime "NODE:20-lts"
 
 # Create one small PostgreSQL Flexible Server with no HA.
 az postgres flexible-server create --resource-group securechat-rg --name <globally-unique-db-name> \
