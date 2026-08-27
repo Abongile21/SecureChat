@@ -71,7 +71,7 @@ export const getChatHistory = async (req: AuthRequest, res: Response): Promise<v
 export const startNewChat = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     if (!req.user?.id) throw new AppError(401, 'Authenticated user required');
-    const session = await ChatSession.create(req.user.id);
+    const session = await ChatSession.getOrCreate(req.user.id);
     res.status(201).json({
       chatId: session.id,
       createdAt: session.started_at,

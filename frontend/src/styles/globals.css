@@ -45,7 +45,7 @@ button:focus-visible, input:focus-visible { outline: 3px solid rgba(37, 99, 235,
 .modal-close:hover { color: #1e293b; background: #f1f5f9; }
 .modal-close svg { width: 18px; height: 18px; }
 
-.chat-shell { display: grid; grid-template-columns: 320px minmax(0, 1fr); height: min(720px, calc(100vh - 56px)); min-height: 560px; overflow: hidden; border: 1px solid #e3e7ec; border-radius: 14px; background: #fff; box-shadow: 0 12px 32px rgba(15, 23, 42, .14); }
+.chat-shell { display: grid; grid-template-columns: minmax(0, 1fr); height: min(720px, calc(100vh - 56px)); min-height: 560px; overflow: hidden; border: 1px solid #e3e7ec; border-radius: 14px; background: #fff; box-shadow: 0 12px 32px rgba(15, 23, 42, .14); }
 .conversation-panel { min-width: 0; border-right: 1px solid #e7eaee; background: #fbfcfd; }
 .conversation-heading, .chat-header { display: flex; align-items: center; gap: 12px; }
 .conversation-heading { justify-content: space-between; padding: 24px 20px 18px; }

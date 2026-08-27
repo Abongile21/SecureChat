@@ -25,6 +25,16 @@ export const ChatSession = {
     return session;
   },
 
+  async getOrCreate(userId: string): Promise<ChatSession> {
+    const [createdSession] = await db('chat_sessions')
+      .insert({ user_id: userId })
+      .onConflict('user_id')
+      .ignore()
+      .returning('*');
+
+    return createdSession || db('chat_sessions').where({ user_id: userId }).first();
+  },
+
   async findById(id: string): Promise<ChatSession | undefined> {
     return db('chat_sessions').where({ id }).first();
   },

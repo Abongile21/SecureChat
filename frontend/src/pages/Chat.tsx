@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { chatService } from '../services/chatService';
 
 type Message = { id: string | number; text: string; time: string; mine: boolean; read?: boolean; replyTo?: string };
@@ -6,20 +6,10 @@ type Conversation = { id: string; name: string; initials: string; preview: strin
 
 const initialConversations: Conversation[] = [
   {
-    id: 'phishing', name: 'Phishing basics', initials: 'PH', preview: 'Learn how to spot suspicious links.', time: 'Today', unread: 2,
+    id: 'securechat-demo', name: 'SecureChat AI', initials: 'AI', preview: 'Your private cybersecurity learning assistant.', time: 'Now', unread: 0,
     messages: [
       { id: 1, text: 'Welcome. I can help you understand phishing, suspicious links, and common social engineering tactics.', time: '10:39 AM', mine: false },
-      { id: 2, text: 'How can I identify a suspicious link?', time: '10:40 AM', mine: true, read: true },
-      { id: 3, text: 'Check the real destination before opening it, watch for misspelled domains, and be cautious when a message creates urgency. You can paste a link here and I will help you assess the warning signs.', time: '10:42 AM', mine: false },
     ],
-  },
-  {
-    id: 'passwords', name: 'Password safety', initials: 'PW', preview: 'Build stronger password habits.', time: 'Yesterday', unread: 0,
-    messages: [{ id: 4, text: 'Learn why unique passwords and a password manager reduce account takeover risk.', time: 'Yesterday', mine: false }],
-  },
-  {
-    id: 'messaging', name: 'Secure messaging', initials: 'SM', preview: 'Protect conversations and data.', time: 'Mon', unread: 0,
-    messages: [{ id: 5, text: 'Explore practical ways to protect sensitive conversations, devices, and shared information.', time: 'Mon', mine: false }],
   },
 ];
 
@@ -42,12 +32,10 @@ function Icon({ name }: { name: 'search' | 'plus' | 'arrow' | 'check' | 'more' |
 export default function Chat() {
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [conversations, setConversations] = useState(initialConversations);
-  const [selectedId, setSelectedId] = useState('phishing');
-  const [query, setQuery] = useState('');
+  const [selectedId, setSelectedId] = useState('securechat-demo');
   const [messageQuery, setMessageQuery] = useState('');
   const [draft, setDraft] = useState('');
   const [replyTo, setReplyTo] = useState<Message | null>(null);
-  const [mobileChatOpen, setMobileChatOpen] = useState(false);
   const [isSending, setIsSending] = useState(false);
   const [error, setError] = useState('');
 
@@ -83,10 +71,8 @@ export default function Chat() {
   }, [isChatOpen]);
 
   const selected = conversations.find((conversation) => conversation.id === selectedId) ?? conversations[0];
-  const visibleConversations = useMemo(() => conversations.filter((conversation) => conversation.name.toLowerCase().includes(query.toLowerCase())), [conversations, query]);
   const visibleMessages = selected.messages.filter((message) => message.text.toLowerCase().includes(messageQuery.toLowerCase()));
 
-  const openConversation = (id: string) => { setSelectedId(id); setMobileChatOpen(true); };
   const sendMessage = async () => {
     const text = draft.trim();
     if (!text || isSending || !selected) return;
@@ -117,25 +103,9 @@ export default function Chat() {
       {isChatOpen && <div className="chat-modal-backdrop" role="presentation" onMouseDown={() => setIsChatOpen(false)}>
         <section className="chat-modal" role="dialog" aria-modal="true" aria-label="Cybersecurity learning assistant" onMouseDown={(event) => event.stopPropagation()}>
           <button className="modal-close" type="button" aria-label="Close SecureChat assistant" title="Close chat" onClick={() => setIsChatOpen(false)}><Icon name="close" /></button>
-          <div className="chat-shell">
-      <aside className={`conversation-panel ${mobileChatOpen ? 'mobile-hidden' : ''}`}>
-        <div className="conversation-heading">
-          <div><p className="eyebrow">SecureChat</p><h2>Learn security</h2></div>
-          <button className="icon-button" aria-label="Start a new learning topic" title="New learning topic"><Icon name="plus" /></button>
-        </div>
-        <label className="search-field"><Icon name="search" /><span className="sr-only">Search learning topics</span><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search topics" /></label>
-        <div className="conversation-list">
-          {visibleConversations.length ? visibleConversations.map((conversation) => (
-            <button key={conversation.id} className={`conversation-item ${selected.id === conversation.id ? 'selected' : ''}`} onClick={() => openConversation(conversation.id)}>
-              <span className="avatar">{conversation.initials}</span><span className="conversation-copy"><strong>{conversation.name}</strong><span>{conversation.preview}</span></span><span className="conversation-meta"><time>{conversation.time}</time>{conversation.unread > 0 && <b>{conversation.unread}</b>}</span><Icon name="arrow" />
-            </button>
-          )) : <div className="empty-state compact"><span className="empty-icon"><Icon name="search" /></span><strong>No topics found</strong><span>Try a different search.</span></div>}
-        </div>
-      </aside>
-
-      <div className={`chat-panel ${mobileChatOpen ? 'mobile-visible' : ''}`}>
+            <div className="chat-shell">
+          <div className="chat-panel">
         <header className="chat-header">
-          <button className="back-button" aria-label="Back to conversations" onClick={() => setMobileChatOpen(false)}><Icon name="back" /></button>
           <span className="avatar">{selected.initials}</span><div className="chat-person"><strong>{selected.name}</strong><span>Cybersecurity learning topic</span></div>
           <div className="chat-actions"><button className="icon-button" aria-label="Search lesson" title="Search lesson" onClick={() => document.getElementById('message-search')?.focus()}><Icon name="search" /></button><button className="icon-button" aria-label="More topic options" title="More options"><Icon name="more" /></button></div>
         </header>

@@ -79,6 +79,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           await register('SecureChat Demo', demoEmail, demoPassword);
         } catch (error) {
           console.error('Automatic demo login failed:', error);
+          applySession({
+            token: 'local-development-demo-token',
+            user: { id: 'local-demo-user', email: demoEmail, name: 'SecureChat Demo', role: 'employee' },
+          });
         }
       }
     };
