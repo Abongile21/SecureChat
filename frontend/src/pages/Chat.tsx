@@ -1,5 +1,4 @@
-import { useMemo, useState } from 'react';
-import { useEffect } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { chatService } from '../services/chatService';
 
 type Message = { id: string | number; text: string; time: string; mine: boolean; read?: boolean; replyTo?: string };
@@ -24,7 +23,7 @@ const initialConversations: Conversation[] = [
   },
 ];
 
-function Icon({ name }: { name: 'search' | 'plus' | 'arrow' | 'check' | 'more' | 'smile' | 'send' | 'back' }) {
+function Icon({ name }: { name: 'search' | 'plus' | 'arrow' | 'check' | 'more' | 'smile' | 'send' | 'back' | 'chat' | 'close' }) {
   const paths = {
     search: <><circle cx="11" cy="11" r="6.5" /><path d="m16 16 4 4" /></>,
     plus: <><path d="M12 5v14M5 12h14" /></>,
@@ -34,11 +33,14 @@ function Icon({ name }: { name: 'search' | 'plus' | 'arrow' | 'check' | 'more' |
     more: <><circle cx="5" cy="12" r="1" fill="currentColor" stroke="none" /><circle cx="12" cy="12" r="1" fill="currentColor" stroke="none" /><circle cx="19" cy="12" r="1" fill="currentColor" stroke="none" /></>,
     smile: <><circle cx="12" cy="12" r="8" /><path d="M8.5 14.5c1.8 2 5.2 2 7 0M9 9h.01M15 9h.01" /></>,
     send: <><path d="m21 3-7.5 18-3.5-7-7-3.5L21 3Z" /><path d="M10 14 21 3" /></>,
+    chat: <><path d="M20 11.5a7.5 7.5 0 0 1-8 7.5 8.5 8.5 0 0 1-3.5-.8L4 20l1.2-3.2A7.5 7.5 0 1 1 20 11.5Z" /><path d="M8 11.5h.01M12 11.5h.01M16 11.5h.01" /></>,
+    close: <><path d="m6 6 12 12M18 6 6 18" /></>,
   };
   return <svg aria-hidden="true" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">{paths[name]}</svg>;
 }
 
 export default function Chat() {
+  const [isChatOpen, setIsChatOpen] = useState(false);
   const [conversations, setConversations] = useState(initialConversations);
   const [selectedId, setSelectedId] = useState('phishing');
   const [query, setQuery] = useState('');
@@ -71,6 +73,15 @@ export default function Chat() {
     return () => { active = false; };
   }, []);
 
+  useEffect(() => {
+    if (!isChatOpen) return;
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setIsChatOpen(false);
+    };
+    document.addEventListener('keydown', closeOnEscape);
+    return () => document.removeEventListener('keydown', closeOnEscape);
+  }, [isChatOpen]);
+
   const selected = conversations.find((conversation) => conversation.id === selectedId) ?? conversations[0];
   const visibleConversations = useMemo(() => conversations.filter((conversation) => conversation.name.toLowerCase().includes(query.toLowerCase())), [conversations, query]);
   const visibleMessages = selected.messages.filter((message) => message.text.toLowerCase().includes(messageQuery.toLowerCase()));
@@ -98,7 +109,15 @@ export default function Chat() {
   };
 
   return (
-    <section className="chat-shell" aria-label="Cybersecurity learning assistant">
+    <>
+      <button className="chat-launcher" type="button" aria-label="Open SecureChat assistant" title="Open SecureChat assistant" onClick={() => setIsChatOpen(true)}>
+        <Icon name="chat" />
+        <span className="chat-launcher-label">Chat with SecureChat</span>
+      </button>
+      {isChatOpen && <div className="chat-modal-backdrop" role="presentation" onMouseDown={() => setIsChatOpen(false)}>
+        <section className="chat-modal" role="dialog" aria-modal="true" aria-label="Cybersecurity learning assistant" onMouseDown={(event) => event.stopPropagation()}>
+          <button className="modal-close" type="button" aria-label="Close SecureChat assistant" title="Close chat" onClick={() => setIsChatOpen(false)}><Icon name="close" /></button>
+          <div className="chat-shell">
       <aside className={`conversation-panel ${mobileChatOpen ? 'mobile-hidden' : ''}`}>
         <div className="conversation-heading">
           <div><p className="eyebrow">SecureChat</p><h2>Learn security</h2></div>
@@ -123,11 +142,13 @@ export default function Chat() {
         <div className="message-toolbar"><span>Learning session</span><label className="message-search"><Icon name="search" /><span className="sr-only">Search lesson</span><input id="message-search" value={messageQuery} onChange={(event) => setMessageQuery(event.target.value)} placeholder="Search this lesson" /></label></div>
         <div className="message-history" aria-live="polite">
           {error && <p role="alert" className="mb-3 text-sm text-rose-300">{error}</p>}
-            <div className="composer-wrap"><div className="typing-indicator">{isSending ? 'SecureChat is thinking...' : 'SecureChat is ready to help'}<span>...</span></div><form className="composer" onSubmit={(event) => { event.preventDefault(); void sendMessage(); }}><button type="button" className="icon-button" aria-label="Add reaction" title="Add reaction"><Icon name="smile" /></button><input maxLength={2000} value={draft} onChange={(event) => setDraft(event.target.value)} placeholder="Ask a cybersecurity question" aria-label={`Ask about ${selected.name}`} /><button type="submit" disabled={isSending} className="send-button" aria-label="Send question" title="Send question"><Icon name="send" /></button></form></div>
           {visibleMessages.length ? visibleMessages.map((message) => <div key={message.id} className={`message-row ${message.mine ? 'mine' : ''}`}><div className="message-bubble">{message.replyTo && <div className="reply-preview">Replying to: {message.replyTo}</div>}<p>{message.text}</p><div className="message-meta"><time>{message.time}</time>{message.mine && <span aria-label={message.read ? 'Read' : 'Delivered'} className={message.read ? 'read' : ''}><Icon name="check" /><Icon name="check" /></span>}<button onClick={() => setReplyTo(message)} aria-label={`Reply to ${message.text}`}>Reply</button></div></div></div>) : <div className="empty-state"><span className="empty-icon"><Icon name="search" /></span><strong>No messages found</strong><span>Try another search term.</span></div>}
         </div>
         <div className="composer-wrap">{replyTo && <div className="reply-bar"><span>Replying to <strong>{replyTo.text}</strong></span><button onClick={() => setReplyTo(null)} aria-label="Cancel reply">Cancel</button></div>}<div className="typing-indicator">SecureChat is ready to help<span>...</span></div><form className="composer" onSubmit={(event) => { event.preventDefault(); sendMessage(); }}><button type="button" className="icon-button" aria-label="Add reaction" title="Add reaction"><Icon name="smile" /></button><input value={draft} onChange={(event) => setDraft(event.target.value)} placeholder="Ask a cybersecurity question" aria-label={`Ask about ${selected.name}`} /><button type="submit" className="send-button" aria-label="Send question" title="Send question"><Icon name="send" /></button></form></div>
-      </div>
-    </section>
+          </div>
+          </div>
+        </section>
+      </div>}
+    </>
   );
 }
