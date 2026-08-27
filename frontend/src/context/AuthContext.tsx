@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { createContext, useContext, useEffect, useRef, useState, ReactNode } from 'react';
 import apiClient from '../services/apiClient';
 
 interface User {
@@ -27,6 +27,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   });
   const [token, setToken] = useState<string | null>(() => localStorage.getItem('token'));
   const [isLoading, setIsLoading] = useState(false);
+  const demoLoginStarted = useRef(false);
 
   useEffect(() => {
     if (token && !user) {
@@ -63,6 +64,27 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (!import.meta.env.DEV || token || user || demoLoginStarted.current) return;
+    demoLoginStarted.current = true;
+
+    const authenticateDemoUser = async () => {
+      const demoEmail = 'demo@securechat.local';
+      const demoPassword = 'SecureChatDemo123!';
+      try {
+        await login(demoEmail, demoPassword);
+      } catch {
+        try {
+          await register('SecureChat Demo', demoEmail, demoPassword);
+        } catch (error) {
+          console.error('Automatic demo login failed:', error);
+        }
+      }
+    };
+
+    void authenticateDemoUser();
+  }, [register, login, token, user]);
 
   const logout = async () => {
     try {
