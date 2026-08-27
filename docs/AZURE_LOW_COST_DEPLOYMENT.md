@@ -7,16 +7,32 @@ Azure Static Web Apps (Free) -> Azure App Service (one Linux app) -> PostgreSQL 
                                                                -> OpenAI API (backend only, optional)
 ```
 
-No VM, Kubernetes, Redis, Front Door, Application Gateway, private network, autoscaling, or Application Insights is required for this three-month demo. Static Web Apps provides HTTPS for the React production build. App Service provides HTTPS for the API. PostgreSQL Flexible Server is the only persistent data service.
+No VM, Kubernetes, Redis, Front Door, Application Gateway, private network, autoscaling, or Application Insights is required for this four-month demo. Static Web Apps provides HTTPS for the React production build. App Service provides HTTPS for the API. PostgreSQL Flexible Server is the only persistent data service.
+
+This plan targets a Microsoft trial budget of $200 over four months. Treat $50 per month as the maximum average spend, but keep the actual operating target below $40 per month so the final month has room for price changes, tax, and trial eligibility differences. Verify current pricing and free-tier eligibility in the Azure calculator before provisioning.
 
 ## Cost guardrails
 
-1. Check the current Azure pricing and regional free allowances before creating resources. Free quotas and eligibility change; do not assume that a free tier or the $200 sponsorship credit is guaranteed for three months.
+1. Check the current Azure pricing and regional free allowances before creating resources. Free quotas and eligibility change; do not assume that a free tier or the $200 trial credit is guaranteed for four months.
 2. Create one resource group and one instance of each service. Do not create staging slots, replicas, high availability, read replicas, or autoscaling.
 3. Choose the smallest App Service Linux plan that supports the app. Use Free only if it is available for the subscription and region and the demo accepts its limits; otherwise choose the lowest Basic/B tier and record the reason.
 4. Create PostgreSQL Flexible Server in the smallest eligible burstable configuration, with minimal storage and no high availability. Stop or delete it when the demo is not needed if the selected tier continues billing while stopped.
 5. Set an Azure Cost Management budget on the resource group or subscription with monthly alerts at $100, $150, $175, $190, and $200. Alerts do not stop charges automatically, so remove unnecessary paid resources when a critical alert arrives.
 6. Keep OpenAI usage capped by `MAX_MESSAGE_LENGTH`, the ten-message context window, the configurable `OPENAI_MODEL` (default `gpt-4o-mini`), and the provider's own spend limit.
+
+## Four-month operating budget
+
+Keep the deployment to one resource group and one region. The preferred cost order is:
+
+| Service | Budget approach |
+| --- | --- |
+| Static Web Apps | Free plan only; use it for the React frontend and HTTPS. |
+| App Service | Free `F1` when available; otherwise use the lowest eligible Linux tier and stop the app when not testing. |
+| PostgreSQL Flexible Server | Smallest eligible burstable tier, 32 GB storage, no HA or replicas; stop it outside test windows or delete it when the trial ends. |
+| OpenAI | Optional; set a provider spend limit before testing and keep the key disabled when AI is not needed. |
+| Monitoring | Use temporary App Service log stream only; do not add Application Insights, Log Analytics, Key Vault, storage, Redis, or networking add-ons. |
+
+Create a Cost Management budget with alerts at `$25`, `$40`, `$50`, and `$60` each month. Alerts do not stop billing, so stop or delete paid resources when spending approaches the monthly limit. Set a weekly cost review and a month-four resource deletion reminder.
 
 ## Create Azure resources
 

@@ -61,6 +61,7 @@ SecureChat/
 - [API Reference](docs/API.md)
 - [Development Guide](docs/DEVELOPMENT.md)
 - [Deployment Guide](docs/DEPLOYMENT.md)
+- [Low-cost Azure deployment for a four-month trial](docs/AZURE_LOW_COST_DEPLOYMENT.md)
 
 ## Key Endpoints
 - `POST /api/auth/login` - Authentication
