@@ -5,7 +5,6 @@ export interface User {
   email: string;
   name: string;
   password_hash?: string;
-  azure_id?: string;
   role: 'employee' | 'manager' | 'admin';
   total_points: number;
   current_rank: number;
@@ -20,10 +19,6 @@ export const User = {
 
   async findByEmail(email: string): Promise<User | undefined> {
     return db('users').where({ email }).first();
-  },
-
-  async findByAzureId(azureId: string): Promise<User | undefined> {
-    return db('users').where({ azure_id: azureId }).first();
   },
 
   async create(userData: Partial<User>): Promise<User> {

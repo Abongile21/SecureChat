@@ -1,0 +1,22 @@
+[build]
+command = "npm install && npm run build --prefix backend && npm run build --prefix frontend"
+functions = "backend/dist"
+publish = "frontend/dist"
+
+[context.production]
+environment = { NODE_ENV = "production" }
+
+[[redirects]]
+from = "/api/*"
+to = "/.netlify/functions/api/:splat"
+status = 200
+
+[[redirects]]
+from = "/health"
+to = "/.netlify/functions/api"
+status = 200
+
+[[redirects]]
+from = "/*"
+to = "/index.html"
+status = 200

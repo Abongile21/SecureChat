@@ -1,58 +1,96 @@
 # SecureChat - Root Configuration
 
-This is the root directory for the SecureChat project.
+Cybersecurity awareness training platform with AI-powered learning, real-time chat, and gamification.
 
 ## Structure
 
-- **backend/** - Node.js/Express API server
-- **frontend/** - React web application
-- **database/** - Database migrations and seeds
+- **backend/** - Node.js/Express API server with Socket.IO
+- **frontend/** - React + Vite web application
+- **database/** - PostgreSQL migrations and seeds
 - **docs/** - Project documentation
+- **vercel.json** - Vercel deployment configuration
+- **netlify.toml** - Netlify deployment configuration
 
-## Quick Commands
+## Requirements
+
+- **Node.js** >= 18.0.0
+- **npm** or yarn
+- **PostgreSQL** >= 12
+- **Ollama** (required for AI features)
+
+## Quick Start
+
+1. **Install Ollama:** Download from [ollama.ai](https://ollama.ai) and run `ollama pull mistral`
+2. **Backend:** `cd backend && npm install && npm run db:migrate && npm run dev`
+3. **Frontend:** `cd frontend && npm install && npm run dev`
+4. **Access:** http://localhost:3000
+
+See [RUN_GUIDE.md](RUN_GUIDE.md) for detailed setup instructions.
+
+## Key Commands
 
 ### Backend
 ```bash
 cd backend
 npm install
 npm run dev              # Start development server
-npm run build            # Build TypeScript
+npm run build            # Compile TypeScript
+npm run db:migrate       # Apply migrations
+npm run db:seed          # Seed data (optional)
 npm test                 # Run tests
-npm run db:migrate       # Run database migrations
+npm run lint             # Check code style
 ```
 
 ### Frontend
 ```bash
 cd frontend
 npm install
-npm run dev              # Start development server
+npm run dev              # Start dev server (port 3000)
 npm run build            # Build for production
-npm test                 # Run tests
+npm run preview          # Preview production build
+npm run lint             # Check code style
 ```
+
+## Environment Setup
+
+1. Copy `.env.example` files to `.env`:
+   ```bash
+   cp backend/.env.example backend/.env
+   cp frontend/.env.example frontend/.env
+   ```
+2. Update `.env` files with your configuration
+3. Ensure PostgreSQL is running
+4. Ensure Ollama is running: `ollama serve`
 
 ## Documentation
 
-- [README.md](README.md) - Project overview
-- [PROJECT_SUMMARY.md](PROJECT_SUMMARY.md) - Quick reference
-- [CONTRIBUTING.md](CONTRIBUTING.md) - Contribution guidelines
-- [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) - System architecture
-- [docs/API.md](docs/API.md) - API documentation
-- [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md) - Development guide
-- [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) - Deployment guide
+| File | Purpose |
+|------|---------|
+| [README.md](README.md) | Project overview & features |
+| [RUN_GUIDE.md](RUN_GUIDE.md) | Local setup & deployment |
+| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | System design |
+| [docs/API.md](docs/API.md) | API endpoints |
+| [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) | Production deployment |
+| [CONTRIBUTING.md](CONTRIBUTING.md) | Contribution guidelines |
 
-## Requirements
+## Deployment
 
-- Node.js >= 18.0.0
-- PostgreSQL >= 12
-- npm or yarn
+**Vercel:** Push to GitHub, connect to Vercel, set environment variables.  
+**Netlify:** Push to GitHub, connect to Netlify, set environment variables.
 
-## First Time Setup
+See [vercel.json](vercel.json) or [netlify.toml](netlify.toml) for configuration details.
 
-1. Setup backend: `cd backend && npm install && npm run db:migrate`
-2. Setup frontend: `cd frontend && npm install`
-3. Configure environment variables (see .env.example files)
-4. Start both servers in separate terminals
+## Technology Stack
+
+| Component | Technology |
+|-----------|-----------|
+| Frontend | React 18 + Vite + Tailwind CSS |
+| Backend | Node.js + Express.js + TypeScript |
+| Database | PostgreSQL with Knex.js migrations |
+| Real-time | Socket.IO |
+| AI | Ollama (local) |
+| Auth | JWT + bcryptjs |
 
 ## More Information
 
-See individual README files in backend/ and frontend/ directories for specific setup instructions.
+For detailed setup, deployment, or development instructions, see [RUN_GUIDE.md](RUN_GUIDE.md).

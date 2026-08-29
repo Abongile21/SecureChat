@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useRef, useState, ReactNode } from 'react';
+import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import apiClient from '../services/apiClient';
 
 interface User {
@@ -27,7 +27,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   });
   const [token, setToken] = useState<string | null>(() => localStorage.getItem('token'));
   const [isLoading, setIsLoading] = useState(false);
-  const demoLoginStarted = useRef(false);
 
   useEffect(() => {
     if (token && !user) {
@@ -64,31 +63,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setIsLoading(false);
     }
   };
-
-  useEffect(() => {
-    if (!import.meta.env.DEV || token || user || demoLoginStarted.current) return;
-    demoLoginStarted.current = true;
-
-    const authenticateDemoUser = async () => {
-      const demoEmail = 'demo@securechat.local';
-      const demoPassword = 'SecureChatDemo123!';
-      try {
-        await login(demoEmail, demoPassword);
-      } catch {
-        try {
-          await register('SecureChat Demo', demoEmail, demoPassword);
-        } catch (error) {
-          console.error('Automatic demo login failed:', error);
-          applySession({
-            token: 'local-development-demo-token',
-            user: { id: 'local-demo-user', email: demoEmail, name: 'SecureChat Demo', role: 'employee' },
-          });
-        }
-      }
-    };
-
-    void authenticateDemoUser();
-  }, [register, login, token, user]);
 
   const logout = async () => {
     try {

@@ -1,0 +1,33 @@
+{
+  "version": 2,
+  "buildCommand": "npm install && npm run build --prefix backend && npm run build --prefix frontend",
+  "outputDirectory": "frontend/dist",
+  "public": false,
+  "env": {
+    "NODE_ENV": "production",
+    "OLLAMA_BASE_URL": "@ollama_base_url",
+    "OLLAMA_MODEL": "@ollama_model",
+    "DATABASE_URL": "@database_url",
+    "JWT_SECRET": "@jwt_secret",
+    "FRONTEND_URL": "@frontend_url"
+  },
+  "functions": {
+    "backend/dist/index.js": {
+      "runtime": "nodejs18.x"
+    }
+  },
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "backend/dist/index.js"
+    },
+    {
+      "src": "/health",
+      "dest": "backend/dist/index.js"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/index.html"
+    }
+  ]
+}

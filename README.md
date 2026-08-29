@@ -6,13 +6,14 @@ SecureChat is an AI-powered chatbot designed to deliver cybersecurity awareness 
 
 ## 🎯 Key Features
 
-- **AI-Powered Conversations**: Leverages OpenAI to deliver engaging cybersecurity education
+- **AI-Powered Conversations**: Leverages Ollama for local/self-hosted AI education
 - **Phishing Simulations**: Create and deploy realistic phishing scenarios for employee training
 - **Gamification**: Points, badges, and achievements to motivate continuous learning
 - **Employee Engagement Tracking**: Real-time monitoring of training participation and progress
 - **Manager Analytics**: Comprehensive reports for training effectiveness and ROI
-- **Microsoft Entra ID Integration**: Enterprise-grade authentication with Azure AD
+- **Real-Time Chat**: Socket.IO integration for instant messaging
 - **Interactive Training Modules**: Structured curriculum for systematic learning
+
 
 ## 🏗️ Tech Stack
 
@@ -20,10 +21,11 @@ SecureChat is an AI-powered chatbot designed to deliver cybersecurity awareness 
 - **React 18** with TypeScript
 - **Vite** - Next-generation build tool
 - **Tailwind CSS** - Utility-first styling
+- **Socket.IO Client** - Real-time communication
 - **Axios** - HTTP client
 - **React Router** - Navigation
-- **MSAL** - Microsoft authentication
 - **TanStack Query** - Server state management
+- **Zustand** - State management
 
 ### Backend
 - **Node.js** - Runtime
@@ -31,15 +33,14 @@ SecureChat is an AI-powered chatbot designed to deliver cybersecurity awareness 
 - **TypeScript** - Type safety
 - **PostgreSQL** - Relational database
 - **Knex.js** - Query builder and migrations
-- **OpenAI API** - AI conversations
-- **Passport.js** - Authentication
+- **Ollama** - Local AI model (required)
+- **Socket.IO** - Real-time messaging
 
-### Database & Analytics
+### Database
 - **PostgreSQL** - Primary datastore
-- **Power BI** - Advanced analytics and reporting
 
 ### Authentication
-- **Microsoft Entra ID (Azure AD)** - Enterprise SSO
+- **JWT** - JSON Web Tokens
 
 ## 📁 Project Structure
 
@@ -85,6 +86,7 @@ SecureChat/
 ### Prerequisites
 - Node.js >= 18.0.0
 - PostgreSQL >= 12
+- Ollama (for local AI) - [Install Ollama](https://ollama.ai)
 - npm or yarn
 
 ### Backend Setup
@@ -159,17 +161,12 @@ DB_NAME=securechat_db
 DB_USER=postgres
 DB_PASSWORD=your_password
 
-# Azure AD
-AZURE_AD_TENANT_ID=your_tenant_id
-AZURE_AD_CLIENT_ID=your_client_id
-AZURE_AD_CLIENT_SECRET=your_client_secret
-
-# OpenAI
-OPENAI_API_KEY=your_api_key
-OPENAI_MODEL=gpt-4
+# Ollama (Local AI - Required)
+OLLAMA_BASE_URL=http://localhost:11434
+OLLAMA_MODEL=mistral
 
 # JWT
-JWT_SECRET=your_secret
+JWT_SECRET=your_secret_minimum_32_characters
 JWT_EXPIRE=7d
 
 # Frontend
@@ -180,9 +177,46 @@ FRONTEND_URL=http://localhost:3000
 
 ```env
 VITE_API_URL=http://localhost:5000/api
-REACT_APP_AZURE_CLIENT_ID=your_client_id
-REACT_APP_AZURE_TENANT_ID=your_tenant_id
-REACT_APP_REDIRECT_URI=http://localhost:3000
+VITE_SOCKET_URL=http://localhost:5000
+VITE_APP_NAME=SecureChat
+VITE_APP_VERSION=1.0.0
+```
+
+## 🤖 Ollama Setup (Required)
+
+Ollama provides local AI capabilities without requiring external API keys. Follow these steps to set up:
+
+### Install Ollama
+1. Download and install from [ollama.ai](https://ollama.ai)
+2. Verify installation:
+```bash
+ollama --version
+```
+
+### Pull a Model
+```bash
+# Pull mistral model (recommended for SecureChat)
+ollama pull mistral
+
+# Or pull another model:
+ollama pull neural-chat  # Good for conversational AI
+ollama pull dolphin-mixtral  # Larger model with better reasoning
+```
+
+### Start Ollama Service
+```bash
+# Start Ollama in the background (runs on port 11434)
+ollama serve
+
+# In another terminal, verify it's running:
+curl http://localhost:11434/api/tags
+```
+
+### Configuration
+Update your `.env` file:
+```env
+OLLAMA_BASE_URL=http://localhost:11434
+OLLAMA_MODEL=mistral  # or your chosen model
 ```
 
 ## 📊 Database Schema
@@ -225,31 +259,30 @@ REACT_APP_REDIRECT_URI=http://localhost:3000
 ## 📝 API Endpoints
 
 ### Authentication
-- `POST /api/auth/login` - Login with Azure AD
-- `POST /api/auth/logout` - Logout
-- `POST /api/auth/refresh-token` - Refresh JWT token
+- `POST /api/auth/register` - Create account (email, name, password)
+- `POST /api/auth/login` - Sign in (email, password)
+- `POST /api/auth/logout` - Sign out
 
 ### Chat
-- `POST /api/chat/message` - Send message to chatbot
-- `GET /api/chat/history/:chatId` - Get chat history
+- `POST /api/chat/message` - Send message to AI
+- `GET /api/chat/:chatId` - Get conversation history
 - `POST /api/chat/start` - Start new chat session
+- `GET /api/chat/sessions` - List user's chat sessions
 
 ### Users
 - `GET /api/users/profile` - Get user profile
 - `PUT /api/users/profile` - Update user profile
-- `GET /api/users` - List all users (admin only)
+- `GET /api/users/leaderboard` - View all users (ranking)
 
 ### Gamification
-- `GET /api/gamification/leaderboard` - Get leaderboard
+- `GET /api/gamification/leaderboard` - Get leaderboard with rankings
 - `GET /api/gamification/achievements/:userId` - Get user achievements
-- `POST /api/gamification/points` - Award points
 - `GET /api/gamification/badges` - Get available badges
 
 ### Analytics
-- `GET /api/analytics/engagement` - Engagement metrics
-- `GET /api/analytics/training-progress` - Training stats
-- `POST /api/analytics/generate-report` - Generate report
-- `GET /api/analytics/phishing-stats` - Phishing simulation stats
+- `GET /api/analytics/engagement` - User engagement metrics
+- `GET /api/analytics/training-progress` - Training completion stats
+- `GET /api/analytics/summary` - Admin dashboard summary
 
 ## 🧪 Testing
 
@@ -261,21 +294,55 @@ npm run test
 # Frontend tests
 cd frontend
 npm run test
+
+# Linting
+cd backend && npm run lint
+cd frontend && npm run lint
 ```
 
 ## 📦 Deployment
 
-### Backend Deployment (Node.js hosting, AWS/Azure/Heroku)
-```bash
-npm run build
-npm start
-```
+SecureChat is serverless-compatible and deploys to **Vercel** or **Netlify**. Both platforms handle frontend and backend automatically.
 
-### Frontend Deployment (Static hosting, Netlify/Vercel)
-```bash
-npm run build
-# Deploy dist/ directory
-```
+### Prerequisites for Production
+- PostgreSQL database (Supabase, Railway, AWS RDS)
+- Ollama instance (self-hosted or cloud)
+- Environment variables configured securely
+
+### Vercel Deployment
+
+1. Push code to GitHub
+2. Go to [vercel.com](https://vercel.com) and import repo
+3. Set environment variables in dashboard:
+   ```
+   DATABASE_URL=postgresql://...
+   OLLAMA_BASE_URL=https://your-ollama-instance.com
+   OLLAMA_MODEL=mistral
+   JWT_SECRET=generate-strong-random-secret-32-chars
+   FRONTEND_URL=your-vercel-domain.vercel.app
+   ```
+4. Deploy automatically
+
+See [vercel.json](vercel.json) for configuration.
+
+### Netlify Deployment
+
+1. Push code to GitHub
+2. Go to [netlify.com](https://netlify.com) and import repo
+3. Set environment variables in Site settings → Build & deploy
+4. Deploy automatically
+
+See [netlify.toml](netlify.toml) for configuration.
+
+### Security Checklist
+Before production:
+- ✅ `JWT_SECRET` is strong (32+ characters)
+- ✅ `DATABASE_URL` is a managed service (not local)
+- ✅ `OLLAMA_BASE_URL` points to production Ollama
+- ✅ Environment variables set in deployment dashboard (not in code)
+- ✅ `NODE_ENV=production`
+- ✅ HTTPS enforced
+- ✅ Database backups configured
 
 ## 🤝 Contributing
 
@@ -288,6 +355,14 @@ npm run build
 ## 📄 License
 
 This project is licensed under the MIT License.
+
+## 📚 More Documentation
+
+- [RUN_GUIDE.md](RUN_GUIDE.md) - Local setup and deployment guide
+- [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) - System architecture
+- [docs/API.md](docs/API.md) - Detailed API documentation
+- [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) - Production deployment guide
+- [CONTRIBUTING.md](CONTRIBUTING.md) - Contribution guidelines
 
 ## 🆘 Support
 

@@ -1,10 +1,11 @@
-import OpenAI from 'openai';
 import dotenv from 'dotenv';
 
 dotenv.config();
 
-const apiKey = process.env.OPENAI_API_KEY;
+export const ollamaConfig = {
+  baseURL: process.env.OLLAMA_BASE_URL || 'http://localhost:11434',
+  model: process.env.OLLAMA_MODEL || 'mistral',
+  timeout: 60000, // 60 seconds
+};
 
-const openai = apiKey ? new OpenAI({ apiKey }) : null;
-
-export default openai;
+export default ollamaConfig;

@@ -7,7 +7,6 @@ export async function up(knex: Knex): Promise<void> {
     table.string('email').unique().notNullable();
     table.string('name').notNullable();
     table.string('password_hash');
-    table.string('azure_id').unique();
     table.enum('role', ['employee', 'manager', 'admin']).defaultTo('employee');
     table.integer('total_points').defaultTo(0);
     table.integer('current_rank').defaultTo(0);
