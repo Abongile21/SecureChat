@@ -1,385 +1,427 @@
 # SecureChat Run Guide
 
-Complete guide to running SecureChat locally and deploying to production.
+This is the deployment-ready run guide for SecureChat. It covers the exact steps needed to run the app locally and prepare it for production deployment.
 
 ---
 
-## Prerequisites
+## 1. Project overview
 
-- **Node.js** 18 or higher
-- **npm** (comes with Node.js)
-- **PostgreSQL** 12 or higher
-- **Ollama** (for local AI features)
-- **Git**
+SecureChat is a cybersecurity awareness platform built with:
+
+- Frontend: React + Vite + TypeScript + Tailwind CSS
+- Backend: Node.js + Express + TypeScript
+- Database: PostgreSQL
+- Real-time: Socket.IO
+- AI: Ollama
+- Auth: JWT + bcryptjs
+- Deployment targets: Vercel and Netlify
+
+Important: the app must be deployed with a real PostgreSQL database and a running Ollama instance.
 
 ---
 
-## Part 1: Local Development Setup
+## 2. Prerequisites
 
-### Step 1: Clone & Install Dependencies
+Before running anything, install:
+
+- Node.js 18+
+- npm
+- PostgreSQL 12+
+- Ollama
+- Git
+
+Install Ollama from https://ollama.ai and then pull a model:
 
 ```bash
-# Navigate to project directory
-cd SecureChat
-
-# Install backend dependencies
-cd backend
-npm install
-
-# Install frontend dependencies
-cd frontend
-npm install
-cd ..
-```
-
-### Step 2: Set Up Ollama (Required)
-
-Ollama provides local AI capabilities without external API keys.
-
-**Install Ollama:**
-1. Download from [ollama.ai](https://ollama.ai)
-2. Run the installer
-
-**Pull a Model:**
-```bash
-# Pull the default model (Mistral)
 ollama pull mistral
-
-# Or try another model:
-ollama pull neural-chat
-ollama pull dolphin-mixtral
 ```
 
-**Start Ollama Service:**
+Check that Ollama is running:
+
 ```bash
-# In a terminal, start Ollama (runs on port 11434)
 ollama serve
-```
-
-Keep this terminal open. Verify it's working:
-```bash
 curl http://localhost:11434/api/tags
 ```
 
-### Step 3: Set Up PostgreSQL Database
+---
 
-**Create the database:**
+## 3. Clone and install
 
-On Windows (PowerShell):
-```powershell
-# Connect to PostgreSQL
+From the project root:
+
+```bash
+cd SecureChat
+
+cd backend
+npm install
+
+cd ../frontend
+npm install
+```
+
+---
+
+## 4. Create database
+
+Create a PostgreSQL database for the app. Example:
+
+```sql
+CREATE DATABASE securechat_db;
+```
+
+If you use PostgreSQL locally with a default user:
+
+```bash
 psql -U postgres
-
-# In psql:
 CREATE DATABASE securechat_db;
 \q
 ```
 
-On macOS/Linux:
+---
+
+## 5. Configure environment files
+
+### Backend env
+
+Create `backend/.env` from `backend/.env.example`:
+
 ```bash
-createdb securechat_db
+cd backend
+cp .env.example .env
 ```
 
-### Step 4: Configure Backend Environment
-
-Create `backend/.env`:
+Use this shape:
 
 ```env
-# Server
 NODE_ENV=development
 PORT=5000
 API_URL=http://localhost:5000
 
-# Database
 DB_HOST=localhost
 DB_PORT=5432
 DB_NAME=securechat_db
 DB_USER=postgres
 DB_PASSWORD=your_password
+DATABASE_URL=postgresql://postgres:your_password@localhost:5432/securechat_db
+DB_POOL_MAX=5
 
-# Ollama (Required)
 OLLAMA_BASE_URL=http://localhost:11434
 OLLAMA_MODEL=mistral
 
-# JWT Authentication
-JWT_SECRET=your_secret_key_minimum_32_characters_long
+JWT_SECRET=change_this_to_a_strong_32_plus_character_secret
 JWT_EXPIRE=7d
 
-# Frontend
 FRONTEND_URL=http://localhost:3000
+LOG_LEVEL=info
 ```
 
-### Step 5: Configure Frontend Environment
+Notes:
+- `DATABASE_URL` is the main production-friendly value.
+- `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASSWORD` are used in local development.
+- `OLLAMA_BASE_URL` must point to a reachable Ollama server.
+- `JWT_SECRET` must be strong and kept secret.
 
-Create `frontend/.env`:
+### Frontend env
+
+Create `frontend/.env` from `frontend/.env.example`:
+
+```bash
+cd ../frontend
+cp .env.example .env
+```
+
+Use this shape:
 
 ```env
-# Backend API
 VITE_API_URL=http://localhost:5000/api
-
-# Real-time Socket.IO
 VITE_SOCKET_URL=http://localhost:5000
-
-# App Settings
 VITE_APP_NAME=SecureChat
 VITE_APP_VERSION=1.0.0
 ```
 
-### Step 6: Initialize Database
+For deployed production, change to your deployed backend URLs:
 
-Run migrations and seed data:
-
-```bash
-cd backend
-
-# Run database migrations
-npm run db:migrate
-
-# Optional: Seed initial data
-npm run db:seed
-
-cd ..
+```env
+VITE_API_URL=https://your-backend-domain.com/api
+VITE_SOCKET_URL=https://your-backend-domain.com
 ```
 
 ---
 
-## Part 2: Running Locally
+## 6. Run database migrations
 
-Open **3 terminals**:
+From the backend folder:
 
-**Terminal 1 - Ollama:**
-```bash
-ollama serve
-# Runs on http://localhost:11434
-```
-
-**Terminal 2 - Backend:**
 ```bash
 cd backend
-npm run dev
-# Runs on http://localhost:5000
+npm run db:migrate
 ```
 
-**Terminal 3 - Frontend:**
+Optional seed data:
+
 ```bash
-cd frontend
-npm run dev
-# Runs on http://localhost:3000
+npm run db:seed
 ```
 
-**Access the app:**
+---
+
+## 7. Run the app locally
+
+Open 3 separate terminals.
+
+### Terminal 1: Ollama
+
+```bash
+ollama serve
+```
+
+### Terminal 2: Backend
+
+```bash
+cd SecureChat/backend
+npm run dev
+```
+
+### Terminal 3: Frontend
+
+```bash
+cd SecureChat/frontend
+npm run dev
+```
+
+Expected URLs:
+
 - Frontend: http://localhost:3000
-- API: http://localhost:5000/api
+- Backend API: http://localhost:5000/api
 - Health check: http://localhost:5000/health
 
 ---
 
-## Part 3: Authentication
+## 8. Login flow
 
-**Create Account:**
-1. Go to http://localhost:3000
-2. Click "Register"
-3. Enter name, email, and password (minimum 12 characters)
-4. Click "Create Account"
+The app does not auto-login.
 
-**Sign In:**
-1. Enter email and password
-2. Click "Sign In"
+Use the app manually:
+
+1. Open http://localhost:3000
+2. Click Register or Sign in
+3. Enter a valid email and password
+4. Passwords must meet the configured minimum length requirement
+5. After login, the app stores the JWT token locally and uses it for protected requests
 
 ---
 
-## Part 4: Production Deployment
+## 9. Production deployment checklist
 
-### Option A: Vercel
+Before deployment, confirm all of the following:
 
-**Prerequisites:**
-- GitHub repository
-- PostgreSQL database (Supabase, Railway, AWS RDS)
-- Ollama instance (local or cloud)
+- PostgreSQL database is created and reachable
+- Ollama is running and reachable over the network
+- `JWT_SECRET` is set in production and not committed to source control
+- `FRONTEND_URL` is set to the live frontend domain
+- CORS is configured for the production frontend domain
+- `VITE_API_URL` and `VITE_SOCKET_URL` match the deployed backend URL
+- Node version is 18 or newer
+- Environment variables are set in the deployment platform, not in git
 
-**Steps:**
-1. Push code to GitHub
-2. Go to [vercel.com](https://vercel.com)
-3. Import your repository
-4. Set environment variables:
-   ```
-   DATABASE_URL: your-postgres-url
-   OLLAMA_BASE_URL: your-ollama-url
-   OLLAMA_MODEL: mistral
-   JWT_SECRET: strong-random-secret
-   FRONTEND_URL: your-vercel-domain.vercel.app
-   ```
-5. Deploy
+---
 
-**Configuration:** See `vercel.json`
+## 10. Deploy to Vercel
 
-### Option B: Netlify
+### Requirements
 
-**Prerequisites:**
-- GitHub repository
-- PostgreSQL database (Supabase, Railway, AWS RDS)
-- Ollama instance (local or cloud)
+- GitHub repo connected to Vercel
+- Managed PostgreSQL database (Supabase, Railway, Neon, Render, etc.)
+- Ollama instance reachable from the deployed backend
 
-**Steps:**
-1. Push code to GitHub
-2. Go to [netlify.com](https://netlify.com)
-3. Import your repository
-4. Netlify detects `netlify.toml`
-5. Set environment variables in Netlify dashboard
-6. Deploy
+### Environment variables for Vercel
 
-**Configuration:** See `netlify.toml`
-
-### Environment Variables for Production
+Set these in the Vercel project dashboard:
 
 ```env
-# Database (use managed PostgreSQL)
-DATABASE_URL=postgresql://user:pass@host/securechat_db
-
-# Ollama (self-hosted or cloud)
+NODE_ENV=production
+PORT=5000
+DATABASE_URL=postgresql://user:password@host:5432/securechat_db
 OLLAMA_BASE_URL=https://your-ollama-instance.com
 OLLAMA_MODEL=mistral
-
-# Security
-NODE_ENV=production
-JWT_SECRET=generate-a-strong-random-secret-32-chars-min
+JWT_SECRET=very_long_random_secret_here
 JWT_EXPIRE=7d
-
-# Deployment
-FRONTEND_URL=https://your-domain.com
+FRONTEND_URL=https://your-frontend-domain.vercel.app
 ```
 
-**Never commit secrets to Git.** Use:
-- Vercel: Environment Variables dashboard
-- Netlify: Site settings → Build & deploy → Environment
-- Or use `.env.local` (ignored by git)
+### Important note
+
+The frontend build should use the deployed backend URL. In `frontend/.env` or platform env vars, set:
+
+```env
+VITE_API_URL=https://your-backend-domain.com/api
+VITE_SOCKET_URL=https://your-backend-domain.com
+```
+
+Then deploy.
 
 ---
 
-## Docker Option (Optional)
+## 11. Deploy to Netlify
 
-Build and run with Docker:
+### Requirements
+
+- Repo connected to Netlify
+- PostgreSQL database available outside localhost
+- Ollama running on a reachable public or private network endpoint
+
+### Environment variables for Netlify
+
+Add these in Site settings → Environment variables:
+
+```env
+NODE_ENV=production
+PORT=5000
+DATABASE_URL=postgresql://user:password@host:5432/securechat_db
+OLLAMA_BASE_URL=https://your-ollama-instance.com
+OLLAMA_MODEL=mistral
+JWT_SECRET=very_long_random_secret_here
+JWT_EXPIRE=7d
+FRONTEND_URL=https://your-netlify-domain.netlify.app
+```
+
+Also set frontend values in the build environment if needed:
+
+```env
+VITE_API_URL=https://your-backend-domain.com/api
+VITE_SOCKET_URL=https://your-backend-domain.com
+```
+
+Then trigger a deploy.
+
+---
+
+## 12. Docker option
+
+If you want to run the app with Docker, use:
 
 ```bash
-# Build images
-docker-compose build
+docker-compose up --build
+```
 
-# Start services
-docker-compose up
+Then run migrations:
 
-# Run migrations
+```bash
 docker-compose exec backend npm run db:migrate
+```
 
-# View logs
-docker-compose logs -f backend
+Stop the stack with:
 
-# Stop services
+```bash
 docker-compose down
 ```
 
 ---
 
-## Troubleshooting
+## 13. Useful scripts
 
-### Port Already in Use
-
-**Windows:**
-```powershell
-# Find process using port 5000
-netstat -ano | findstr :5000
-
-# Kill it
-taskkill /PID <PID> /F
-```
-
-**macOS/Linux:**
-```bash
-# Find and kill
-lsof -i :5000
-kill -9 <PID>
-```
-
-### Ollama Connection Error
-
-```
-Error: Cannot reach http://localhost:11434
-```
-
-**Solution:**
-1. Check if Ollama is running: `ollama serve`
-2. Check if model is pulled: `ollama list`
-3. Verify `OLLAMA_BASE_URL` in `.env`
-
-### Database Connection Error
-
-```
-Error: connect ECONNREFUSED 127.0.0.1:5432
-```
-
-**Solution:**
-1. Ensure PostgreSQL is running
-2. Check `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASSWORD`
-3. Verify database exists: `psql -U postgres -l`
-
-### Frontend Cannot Reach Backend
-
-```
-Error: Failed to fetch /api/auth/login
-```
-
-**Solution:**
-1. Check `VITE_API_URL` in `frontend/.env`
-2. Ensure backend is running on correct port
-3. Check CORS settings in `backend/src/index.ts`
-
-### Migration Errors
+Backend:
 
 ```bash
-# Reset migrations (DEV ONLY)
+cd backend
+npm run dev
+npm run build
+npm run start
+npm run db:migrate
 npm run db:rollback
+npm run db:seed
+npm run test
+npm run lint
+```
 
-# Run again
+Frontend:
+
+```bash
+cd frontend
+npm run dev
+npm run build
+npm run preview
+npm run lint
+```
+
+---
+
+## 14. Troubleshooting
+
+### Ollama is unreachable
+
+Check:
+
+```bash
+ollama serve
+ollama list
+curl http://localhost:11434/api/tags
+```
+
+If using a remote Ollama host, confirm that:
+- the service is reachable from the deployed environment
+- the URL is correct
+- no firewall or private-network restriction is blocking it
+
+### Database connection fails
+
+Check:
+
+```bash
+psql -U postgres -l
+```
+
+Then verify the values in `.env`:
+
+```env
+DB_HOST=localhost
+DB_PORT=5432
+DB_NAME=securechat_db
+DB_USER=postgres
+DB_PASSWORD=your_password
+```
+
+### Frontend cannot reach backend
+
+Verify:
+
+```env
+VITE_API_URL=http://localhost:5000/api
+VITE_SOCKET_URL=http://localhost:5000
+```
+
+If deployed, make sure those values point to the production backend domain.
+
+### CORS errors
+
+Confirm the backend allows your frontend domain in the CORS configuration and that `FRONTEND_URL` matches the real frontend origin.
+
+### Migration errors
+
+```bash
+cd backend
+npm run db:rollback
 npm run db:migrate
 ```
 
 ---
 
-## Development Scripts
+## 15. Recommended production setup
 
-**Backend:**
-```bash
-npm run dev          # Start dev server with auto-reload
-npm run build        # Compile TypeScript
-npm run start        # Run compiled code
-npm run db:migrate   # Run pending migrations
-npm run db:rollback  # Rollback last migration
-npm run db:seed      # Seed initial data
-npm run test         # Run tests
-npm run lint         # Check code style
-```
+For a real deployment, the recommended structure is:
 
-**Frontend:**
-```bash
-npm run dev          # Start dev server
-npm run build        # Build for production
-npm run preview      # Preview production build
-npm run lint         # Check code style
-```
+- Frontend hosted on Vercel or Netlify
+- Backend served via the platform runtime or a hosted Node service
+- PostgreSQL hosted by a managed provider
+- Ollama hosted on a machine or service that the backend can access
+- JWT secret stored securely in the deployment environment
+
+This is the correct production pattern for SecureChat.
 
 ---
 
-## Next Steps
+## 16. Final note
 
-- Read [README.md](README.md) for feature overview
-- Check [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) for advanced deployment
-- Review [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for system design
-- See [docs/API.md](docs/API.md) for API documentation
+This app is not meant to run without a real database and a working Ollama AI service. For local dev, use a local PostgreSQL instance and a local Ollama server. For production, use managed PostgreSQL and a hosted Ollama endpoint or a reachable internal Ollama service.
 
----
-
-## Support
-
-For issues or questions:
-1. Check this guide's Troubleshooting section
-2. Review `backend/.env.example` and `frontend/.env.example`
-3. Check application logs: `backend/error.log` and `backend/combined.log`
+If you follow this guide exactly, the project is ready for proper deployment and day-to-day development.

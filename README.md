@@ -368,8 +368,3 @@ This project is licensed under the MIT License.
 
 For support, email support@securechat.com or open an issue on GitHub.
 
-## 📞 Contact
-
-- **Email**: info@securechat.com
-- **Website**: https://securechat.com
-- **Documentation**: https://docs.securechat.com
