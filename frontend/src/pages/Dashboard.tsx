@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import apiClient from '../services/apiClient';
-import Quizzes from './Quizzes';
+import LearningCenter from '../components/LearningCenter';
 
 type DashboardData = {
   user: { name: string; totalPoints: number; rank: number; badges: number };
@@ -100,7 +100,7 @@ export default function Dashboard() {
       </section>
 
       <section id="learning-center" className="scroll-mt-6 pt-2">
-        <Quizzes />
+        <LearningCenter />
       </section>
     </div>
   );
