@@ -62,39 +62,40 @@ export default function Dashboard() {
 
   return (
     <div className="space-y-6">
-      <section className="rounded-3xl border border-white/10 bg-slate-900/70 p-6 shadow-2xl shadow-black/20 backdrop-blur">
+      <section className="rounded-3xl border border-blue-100 bg-gradient-to-br from-blue-700 to-indigo-800 p-7 shadow-xl shadow-blue-900/10">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div>
-            <p className="text-sm font-semibold uppercase tracking-[0.35em] text-cyan-300">Today&apos;s snapshot</p>
-            <h2 className="mt-2 text-3xl font-semibold text-white">{isLoading ? 'Loading your learning snapshot...' : `Welcome back, ${user.name}.`}</h2>
-            <p className="mt-3 max-w-2xl text-sm leading-7 text-slate-400">Stay ahead of phishing threats with bite-sized training, smart reminders, and measurable progress.</p>
+            <p className="text-sm font-semibold uppercase tracking-[0.3em] text-blue-200">Today&apos;s snapshot</p>
+            <h2 className="mt-2 text-3xl font-bold text-white">{isLoading ? 'Loading your learning snapshot...' : `Welcome back, ${user.name}.`}</h2>
+            <p className="mt-3 max-w-2xl text-sm leading-7 text-blue-100">Build safer habits with short lessons, practical quizzes, and guided conversations.</p>
           </div>
-          <div className="rounded-2xl border border-emerald-400/20 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-200">{activity.weeklyConsistency}% weekly consistency</div>
+          <div className="rounded-2xl border border-white/20 bg-white/10 px-4 py-3 text-sm font-semibold text-white">{activity.weeklyConsistency}% learning progress</div>
         </div>
       </section>
 
-      {error && <p role="alert" className="rounded-xl border border-rose-300/20 bg-rose-500/10 p-3 text-sm text-rose-200">{error}</p>}
+      {error && <p role="alert" className="rounded-xl border border-rose-200 bg-rose-50 p-3 text-sm text-rose-700">{error}</p>}
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        {cards.map((card) => <div key={card.title} className={`rounded-3xl border border-white/10 bg-gradient-to-br ${card.accent} p-6 text-white shadow-lg`}><p className="text-sm font-medium uppercase tracking-[0.25em] text-white/80">{card.title}</p><p className="mt-4 text-3xl font-semibold">{isLoading ? '...' : card.value}</p></div>)}
+        {cards.map((card) => <div key={card.title} className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"><p className="text-sm font-semibold uppercase tracking-[0.2em] text-slate-500">{card.title}</p><p className="mt-4 text-3xl font-bold text-slate-900">{isLoading ? '...' : card.value}</p><div className={`mt-4 h-1.5 w-12 rounded-full bg-gradient-to-r ${card.accent}`} /></div>)}
       </div>
 
       <section className="grid gap-4 lg:grid-cols-[1.25fr_0.75fr]">
-        <div className="rounded-3xl border border-white/10 bg-slate-900/70 p-6 shadow-2xl shadow-black/20 backdrop-blur">
-          <h3 className="text-xl font-semibold text-white">Recommended next step</h3>
-          <p className="mt-3 text-sm leading-7 text-slate-400">Ask SecureChat for a guided phishing lesson and build your security knowledge through conversation.</p>
+        <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-blue-600">Keep learning</p>
+          <h3 className="mt-2 text-xl font-bold text-slate-900">Choose your next step</h3>
+          <p className="mt-3 text-sm leading-7 text-slate-600">Ask SecureChat for a guided lesson or test your knowledge with a short quiz.</p>
           <div className="mt-5 flex flex-wrap gap-3">
-            <button onClick={openChat} className="rounded-full bg-cyan-500 px-5 py-2 text-sm font-semibold text-slate-950 transition hover:bg-cyan-400">Open SecureChat lesson</button>
-            <button onClick={() => navigate('/quizzes')} className="rounded-full border border-cyan-400/40 px-5 py-2 text-sm font-semibold text-cyan-700 transition hover:bg-cyan-50">Open quizzes</button>
+            <button onClick={openChat} className="rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700">Chat with SecureChat</button>
+            <button onClick={() => navigate('/quizzes')} className="rounded-xl border border-slate-200 px-5 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">Browse learning</button>
           </div>
         </div>
-        <div className="rounded-3xl border border-white/10 bg-slate-900/70 p-6 shadow-2xl shadow-black/20 backdrop-blur">
-          <h3 className="text-xl font-semibold text-white">This week</h3>
-          <ul className="mt-4 space-y-3 text-sm text-slate-400">
-            <li className="flex items-center justify-between rounded-2xl bg-white/5 px-3 py-2">Chat messages <span className="text-cyan-300">{activity.chatMessages}</span></li>
-            <li className="flex items-center justify-between rounded-2xl bg-white/5 px-3 py-2">Learning sessions <span className="text-cyan-300">{activity.activeSessions}</span></li>
-            <li className="flex items-center justify-between rounded-2xl bg-white/5 px-3 py-2">Lessons completed <span className="text-cyan-300">{activity.completedLessons}</span></li>
-            <li className="flex items-center justify-between rounded-2xl bg-white/5 px-3 py-2">Phishing quizzes <span className="text-cyan-300">{activity.phishingQuizzes}</span></li>
+        <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+          <h3 className="text-xl font-bold text-slate-900">Your activity</h3>
+          <ul className="mt-4 space-y-3 text-sm">
+            <li className="flex items-center justify-between rounded-2xl bg-slate-50 px-3 py-2.5 text-slate-600">Chat messages <span className="font-bold text-blue-600">{activity.chatMessages}</span></li>
+            <li className="flex items-center justify-between rounded-2xl bg-slate-50 px-3 py-2.5 text-slate-600">Learning sessions <span className="font-bold text-blue-600">{activity.activeSessions}</span></li>
+            <li className="flex items-center justify-between rounded-2xl bg-slate-50 px-3 py-2.5 text-slate-600">Lessons completed <span className="font-bold text-blue-600">{activity.completedLessons}</span></li>
+            <li className="flex items-center justify-between rounded-2xl bg-slate-50 px-3 py-2.5 text-slate-600">Quiz attempts <span className="font-bold text-blue-600">{activity.phishingQuizzes}</span></li>
           </ul>
         </div>
       </section>
