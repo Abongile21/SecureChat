@@ -84,7 +84,7 @@ export default function Quizzes() {
           {lessonCompleted && <p className="mt-5 rounded-xl bg-emerald-50 p-3 text-sm text-emerald-700">Lesson completed. Your points were added.</p>}
           <div className="mt-6 flex flex-wrap gap-3">
             {!lessonCompleted && <button onClick={() => void completeLesson()} className="rounded-xl bg-emerald-600 px-5 py-3 font-semibold text-white hover:bg-emerald-700">Mark lesson complete</button>}
-            <button onClick={() => { setSelectedLesson(null); chooseQuiz(quizzes.find((quiz) => quiz.id === selectedLesson.quizId) as Quiz); }} className="rounded-xl bg-blue-600 px-5 py-3 font-semibold text-white hover:bg-blue-700">Take lesson quiz</button>
+            {quizzes.some((quiz) => quiz.id === selectedLesson.quizId) && <button onClick={() => { const quiz = quizzes.find((item) => item.id === selectedLesson.quizId); if (quiz) { setSelectedLesson(null); chooseQuiz(quiz); } }} className="rounded-xl bg-blue-600 px-5 py-3 font-semibold text-white hover:bg-blue-700">Take lesson quiz</button>}
           </div>
         </div>
       </section>
