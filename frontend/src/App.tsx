@@ -3,7 +3,6 @@ import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import PrivateRoute from './components/PrivateRoute';
 import Layout from './components/Layout';
-import Quizzes from './pages/Quizzes';
 
 function App() {
   return (
@@ -18,7 +17,7 @@ function App() {
           }
         >
           <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/quizzes" element={<Quizzes />} />
+          <Route path="/quizzes" element={<Navigate to="/dashboard" replace />} />
           <Route path="/chat" element={<Navigate to="/dashboard" replace />} />
         </Route>
         <Route path="/" element={<Navigate to="/dashboard" replace />} />

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import apiClient from '../services/apiClient';
+import Quizzes from './Quizzes';
 
 type DashboardData = {
   user: { name: string; totalPoints: number; rank: number; badges: number };
@@ -21,7 +21,6 @@ const initialData: DashboardData = {
 };
 
 export default function Dashboard() {
-  const navigate = useNavigate();
   const [data, setData] = useState(initialData);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
@@ -86,7 +85,7 @@ export default function Dashboard() {
           <p className="mt-3 text-sm leading-7 text-slate-600">Ask SecureChat for a guided lesson or test your knowledge with a short quiz.</p>
           <div className="mt-5 flex flex-wrap gap-3">
             <button onClick={openChat} className="rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700">Chat with SecureChat</button>
-            <button onClick={() => navigate('/quizzes')} className="rounded-xl border border-slate-200 px-5 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">Browse learning</button>
+            <button onClick={() => document.getElementById('learning-center')?.scrollIntoView({ behavior: 'smooth' })} className="rounded-xl border border-slate-200 px-5 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">Browse learning</button>
           </div>
         </div>
         <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
@@ -98,6 +97,10 @@ export default function Dashboard() {
             <li className="flex items-center justify-between rounded-2xl bg-slate-50 px-3 py-2.5 text-slate-600">Quiz attempts <span className="font-bold text-blue-600">{activity.phishingQuizzes}</span></li>
           </ul>
         </div>
+      </section>
+
+      <section id="learning-center" className="scroll-mt-6 pt-2">
+        <Quizzes />
       </section>
     </div>
   );

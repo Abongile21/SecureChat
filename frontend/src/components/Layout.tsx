@@ -25,7 +25,6 @@ export default function Layout() {
             </div>
             <div className="flex flex-wrap items-center gap-3">
               <NavLink to="/dashboard" className={({ isActive }) => `rounded-xl px-4 py-2 text-sm font-semibold transition ${isActive ? 'bg-blue-600 text-white shadow-md shadow-blue-600/20' : 'text-slate-600 hover:bg-white hover:text-blue-700'}`}>Dashboard</NavLink>
-              <NavLink to="/quizzes" className={({ isActive }) => `rounded-xl px-4 py-2 text-sm font-semibold transition ${isActive ? 'bg-blue-600 text-white shadow-md shadow-blue-600/20' : 'text-slate-600 hover:bg-white hover:text-blue-700'}`}>Learn &amp; quiz</NavLink>
               <button
                 onClick={handleLogout}
                 className="rounded-lg border border-slate-200 px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-100 hover:text-slate-900"
