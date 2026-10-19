@@ -1,29 +1,34 @@
-import path from 'path';
-import knex from 'knex';
+import { Db, MongoClient } from 'mongodb';
 import dotenv from 'dotenv';
 
 dotenv.config();
 
-const db = knex({
-  client: 'pg',
-  connection: {
-    connectionString: process.env.DATABASE_URL,
-    host: process.env.DB_HOST || 'localhost',
-    port: parseInt(process.env.DB_PORT || '5432', 10),
-    user: process.env.DB_USER || 'postgres',
-    password: process.env.DB_PASSWORD || '',
-    database: process.env.DB_NAME || 'securechat_db',
-    ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
-  },
-  pool: { min: 0, max: Number(process.env.DB_POOL_MAX) || 5 },
-  migrations: {
-    directory: path.join(__dirname, '../../database/migrations'),
-    extension: 'ts',
-  },
-  seeds: {
-    directory: path.join(__dirname, '../../database/seeds'),
-    extension: 'ts',
-  },
-});
+const uri = process.env.MONGODB_URI;
+if (!uri) {
+  throw new Error('MONGODB_URI must be configured');
+}
 
-export default db;
+const client = new MongoClient(uri);
+let databasePromise: Promise<Db> | undefined;
+
+export const getDatabase = (): Promise<Db> => {
+  if (!databasePromise) {
+    databasePromise = client.connect().then(() => {
+      const database = client.db(process.env.MONGODB_DB_NAME || process.env.DB_NAME || 'securechat_db');
+      return Promise.all([
+        database.collection('users').createIndex({ email: 1 }, { unique: true }),
+        database.collection('chat_sessions').createIndex({ user_id: 1 }, { unique: true }),
+        database.collection('chat_messages').createIndex({ chat_session_id: 1, created_at: -1 }),
+      ]).then(() => database);
+    });
+  }
+
+  return databasePromise;
+};
+
+export const closeDatabase = async (): Promise<void> => {
+  if (databasePromise) {
+    await client.close();
+    databasePromise = undefined;
+  }
+};

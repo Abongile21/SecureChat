@@ -28,7 +28,7 @@
 └──────────────────────────────────────────────────────────┘
           │              │              │
     ┌─────▼─────┐  ┌────▼─────┐  ┌───▼──────┐
-    │ PostgreSQL│  │  Ollama   │  │  Logger  │
+    │ MongoDB   │  │  Ollama   │  │  Logger  │
     │ Database  │  │  (Local)  │  │  (File)  │
     └───────────┘  └──────────┘  └──────────┘
 ```
@@ -40,7 +40,7 @@
 | Frontend | React 18 + Vite + Tailwind CSS |
 | Real-time | Socket.IO 4.7.2 |
 | Backend | Node.js + Express.js + TypeScript |
-| Database | PostgreSQL + Knex.js |
+| Database | MongoDB Atlas + MongoDB Node.js driver |
 | AI/ML | Ollama (local HTTP API) |
 | Authentication | JWT + bcryptjs |
 | Logging | Winston |
@@ -222,7 +222,7 @@ See [API.md](API.md) for full schema details.
 
 **Horizontal Scaling:**
 - Stateless API (Session data in JWT only)
-- PostgreSQL connection pooling (Knex.js default)
+- MongoDB connection pooling through one shared MongoClient
 - Load balancer compatible
 - Each backend instance independent
 
@@ -234,7 +234,7 @@ See [API.md](API.md) for full schema details.
 **Database Optimization:**
 - Indexed queries on user_id, email
 - Connection pool max: configurable (default 10)
-- Migrations managed via Knex.js
+- Indexes created automatically on startup
 
 **Ollama Optimization:**
 - Local HTTP calls (no network latency in dev)
@@ -246,7 +246,7 @@ See [API.md](API.md) for full schema details.
 **Vercel (Frontend + Serverless Backend):**
 - Frontend: Static React build (dist/) served by Vercel CDN
 - Backend: Serverless functions in netlify/functions
-- Database: Managed PostgreSQL (Supabase/Railway)
+- Database: MongoDB Atlas
 - Ollama: Self-hosted or cloud endpoint
 
 **Netlify (Frontend + Serverless Backend):**
@@ -266,7 +266,7 @@ See [API.md](API.md) for full schema details.
 ```env
 NODE_ENV=production
 PORT=5000
-DATABASE_URL=postgresql://...
+MONGODB_URI=mongodb+srv://abonyakatya_db_user:<db_password>@cluster0.0noe5mo.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0
 OLLAMA_BASE_URL=http://localhost:11434
 OLLAMA_MODEL=mistral
 JWT_SECRET=strong-32-char-minimum

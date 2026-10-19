@@ -22,7 +22,7 @@ export const register = async (req: Request, res: Response, next: NextFunction):
     const user = await User.create({ email, name, password_hash: await bcrypt.hash(password, 12) });
     res.status(201).json({ token: issueToken(user.id, user.email), user: { id: user.id, email: user.email, name: user.name, role: user.role } });
   } catch (error) {
-    next(error instanceof AppError ? error : new AppError(500, 'Registration failed'));
+    next(error);
   }
 };
 
@@ -36,7 +36,7 @@ export const login = async (req: Request, res: Response, next: NextFunction): Pr
     }
     res.status(200).json({ token: issueToken(user.id, user.email), user: { id: user.id, email: user.email, name: user.name, role: user.role } });
   } catch (error) {
-    next(error instanceof AppError ? error : new AppError(500, 'Login failed'));
+    next(error);
   }
 };
 

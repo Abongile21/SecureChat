@@ -23,7 +23,6 @@ export default function Login() {
     try {
       if (isRegistering) await register(name, email, password);
       else await login(email, password);
-      navigate('/chat', { replace: true });
     } catch {
       setError('Unable to authenticate. Check your details and try again.');
     }

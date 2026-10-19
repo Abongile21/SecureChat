@@ -31,13 +31,12 @@ SecureChat is an AI-powered chatbot designed to deliver cybersecurity awareness 
 - **Node.js** - Runtime
 - **Express.js** - Web framework
 - **TypeScript** - Type safety
-- **PostgreSQL** - Relational database
-- **Knex.js** - Query builder and migrations
+- **MongoDB Atlas** - Document database
 - **Ollama** - Local AI model (required)
 - **Socket.IO** - Real-time messaging
 
 ### Database
-- **PostgreSQL** - Primary datastore
+- **MongoDB Atlas** - Primary datastore
 
 ### Authentication
 - **JWT** - JSON Web Tokens
@@ -85,7 +84,7 @@ SecureChat/
 
 ### Prerequisites
 - Node.js >= 18.0.0
-- PostgreSQL >= 12
+- MongoDB Atlas account
 - Ollama (for local AI) - [Install Ollama](https://ollama.ai)
 - npm or yarn
 
@@ -109,12 +108,10 @@ cp .env.example .env
 
 4. Run database migrations:
 ```bash
-npm run db:migrate
 ```
 
 5. Seed initial data:
 ```bash
-npm run db:seed
 ```
 
 6. Start development server:
@@ -155,11 +152,8 @@ PORT=5000
 API_URL=http://localhost:5000
 
 # Database
-DB_HOST=localhost
-DB_PORT=5432
-DB_NAME=securechat_db
-DB_USER=postgres
-DB_PASSWORD=your_password
+MONGODB_URI=mongodb+srv://abonyakatya_db_user:<db_password>@cluster0.0noe5mo.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0
+MONGODB_DB_NAME=securechat_db
 
 # Ollama (Local AI - Required)
 OLLAMA_BASE_URL=http://localhost:11434
@@ -305,7 +299,7 @@ cd frontend && npm run lint
 SecureChat is serverless-compatible and deploys to **Vercel** or **Netlify**. Both platforms handle frontend and backend automatically.
 
 ### Prerequisites for Production
-- PostgreSQL database (Supabase, Railway, AWS RDS)
+- MongoDB Atlas cluster
 - Ollama instance (self-hosted or cloud)
 - Environment variables configured securely
 
@@ -315,7 +309,7 @@ SecureChat is serverless-compatible and deploys to **Vercel** or **Netlify**. Bo
 2. Go to [vercel.com](https://vercel.com) and import repo
 3. Set environment variables in dashboard:
    ```
-   DATABASE_URL=postgresql://...
+   MONGODB_URI=mongodb+srv://abonyakatya_db_user:<db_password>@cluster0.0noe5mo.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0
    OLLAMA_BASE_URL=https://your-ollama-instance.com
    OLLAMA_MODEL=mistral
    JWT_SECRET=generate-strong-random-secret-32-chars
@@ -337,7 +331,7 @@ See [netlify.toml](netlify.toml) for configuration.
 ### Security Checklist
 Before production:
 - ✅ `JWT_SECRET` is strong (32+ characters)
-- ✅ `DATABASE_URL` is a managed service (not local)
+- ✅ `MONGODB_URI` points to MongoDB Atlas (not a local database)
 - ✅ `OLLAMA_BASE_URL` points to production Ollama
 - ✅ Environment variables set in deployment dashboard (not in code)
 - ✅ `NODE_ENV=production`
@@ -367,4 +361,3 @@ This project is licensed under the MIT License.
 ## 🆘 Support
 
 For support, email support@securechat.com or open an issue on GitHub.
-

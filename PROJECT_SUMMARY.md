@@ -5,7 +5,7 @@ Cybersecurity awareness training platform with AI-powered learning, real-time ch
 ## Tech Stack
 - **Frontend**: React 18 + Vite + Tailwind CSS + Socket.IO
 - **Backend**: Node.js + Express + TypeScript + Socket.IO
-- **Database**: PostgreSQL + Knex.js
+- **Database**: MongoDB Atlas with the official MongoDB Node.js driver
 - **AI**: Ollama (local, required)
 - **Auth**: JWT + bcryptjs
 - **Deployment**: Vercel or Netlify
@@ -22,7 +22,6 @@ ollama serve
 ```bash
 cd backend && npm install
 cp .env.example .env
-npm run db:migrate
 npm run dev
 ```
 
@@ -51,7 +50,6 @@ Visit: http://localhost:3000
 SecureChat/
 ├── backend/          Node.js + Express API
 ├── frontend/         React + Vite
-├── database/         PostgreSQL migrations
 ├── docs/             Documentation
 ├── vercel.json       Vercel deployment
 └── netlify.toml      Netlify deployment
@@ -73,7 +71,7 @@ SecureChat/
 ```env
 OLLAMA_BASE_URL=http://localhost:11434
 OLLAMA_MODEL=mistral
-DATABASE_URL=postgresql://...
+MONGODB_URI=mongodb+srv://abonyakatya_db_user:<db_password>@cluster0.0noe5mo.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0
 JWT_SECRET=your_secret_32_chars_min
 FRONTEND_URL=http://localhost:3000
 ```
@@ -110,7 +108,7 @@ See `vercel.json` or `netlify.toml` for configuration.
 - Message history persistence
 
 ## Database
-PostgreSQL with automatic migrations. Run `npm run db:migrate` to initialize.
+MongoDB Atlas with indexes created automatically when the backend connects.
 
 ## Support
 See [RUN_GUIDE.md](RUN_GUIDE.md) for troubleshooting. Check documentation for detailed setup.

@@ -1,4 +1,5 @@
-import db from '../config/database';
+import { randomUUID } from 'crypto';
+import { getDatabase } from '../config/database';
 
 export interface ChatSession {
   id: string;
@@ -17,47 +18,64 @@ export interface ChatMessage {
   created_at: Date;
 }
 
+const sessions = async () => (await getDatabase()).collection<ChatSession>('chat_sessions');
+const messages = async () => (await getDatabase()).collection<ChatMessage>('chat_messages');
+
 export const ChatSession = {
   async create(userId: string, topic?: string): Promise<ChatSession> {
-    const [session] = await db('chat_sessions')
-      .insert({ user_id: userId, topic })
-      .returning('*');
+    const session: ChatSession = {
+      id: randomUUID(),
+      user_id: userId,
+      ...(topic === undefined ? {} : { topic }),
+      started_at: new Date(),
+    };
+    await (await sessions()).insertOne(session);
     return session;
   },
 
   async getOrCreate(userId: string): Promise<ChatSession> {
-    const [createdSession] = await db('chat_sessions')
-      .insert({ user_id: userId })
-      .onConflict('user_id')
-      .ignore()
-      .returning('*');
-
-    return createdSession || db('chat_sessions').where({ user_id: userId }).first();
+    const result = await (await sessions()).findOneAndUpdate(
+      { user_id: userId },
+      {
+        $setOnInsert: {
+          id: randomUUID(),
+          user_id: userId,
+          started_at: new Date(),
+        },
+      },
+      { upsert: true, returnDocument: 'after', projection: { _id: 0 } }
+    );
+    return result as ChatSession;
   },
 
   async findById(id: string): Promise<ChatSession | undefined> {
-    return db('chat_sessions').where({ id }).first();
+    return (await sessions()).findOne({ id }, { projection: { _id: 0 } }) as Promise<ChatSession | undefined>;
   },
 
   async getUserSessions(userId: string): Promise<ChatSession[]> {
-    return db('chat_sessions')
-      .where({ user_id: userId })
-      .orderBy('started_at', 'desc');
+    return (await sessions()).find({ user_id: userId }, { projection: { _id: 0 } }).sort({ started_at: -1 }).toArray();
   },
 
   async addMessage(chatSessionId: string, userId: string, userMessage: string, botResponse: string): Promise<ChatMessage> {
-    const [message] = await db('chat_messages')
-      .insert({ chat_session_id: chatSessionId, user_id: userId, user_message: userMessage, bot_response: botResponse })
-      .returning('*');
+    const message: ChatMessage = {
+      id: randomUUID(),
+      chat_session_id: chatSessionId,
+      user_id: userId,
+      user_message: userMessage,
+      bot_response: botResponse,
+      created_at: new Date(),
+    };
+    await (await messages()).insertOne(message);
     return message;
   },
 
   async getMessages(chatSessionId: string, limit = 20, offset = 0): Promise<ChatMessage[]> {
-    return db('chat_messages')
-      .where({ chat_session_id: chatSessionId })
-      .orderBy('created_at', 'desc')
+    const result = await (await messages())
+      .find({ chat_session_id: chatSessionId }, { projection: { _id: 0 } })
+      .sort({ created_at: -1 })
+      .skip(offset)
       .limit(limit)
-      .offset(offset)
-      .then((messages) => messages.reverse());
+      .toArray();
+    return result.reverse();
   },
 };

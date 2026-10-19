@@ -11,6 +11,7 @@ import chatRoutes from './api/routes/chatRoutes';
 import userRoutes from './api/routes/userRoutes';
 import gamificationRoutes from './api/routes/gamificationRoutes';
 import analyticsRoutes from './api/routes/analyticsRoutes';
+import { closeDatabase } from './config/database';
 
 // Load environment variables
 dotenv.config();
@@ -106,5 +107,12 @@ app.use(errorHandler);
 
 // Start server
 startServer(DEFAULT_PORT);
+
+process.once('SIGINT', () => {
+  void closeDatabase().finally(() => process.exit(0));
+});
+process.once('SIGTERM', () => {
+  void closeDatabase().finally(() => process.exit(0));
+});
 
 export default app;

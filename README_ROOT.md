@@ -6,7 +6,6 @@ Cybersecurity awareness training platform with AI-powered learning, real-time ch
 
 - **backend/** - Node.js/Express API server with Socket.IO
 - **frontend/** - React + Vite web application
-- **database/** - PostgreSQL migrations and seeds
 - **docs/** - Project documentation
 - **vercel.json** - Vercel deployment configuration
 - **netlify.toml** - Netlify deployment configuration
@@ -15,13 +14,13 @@ Cybersecurity awareness training platform with AI-powered learning, real-time ch
 
 - **Node.js** >= 18.0.0
 - **npm** or yarn
-- **PostgreSQL** >= 12
+- **MongoDB Atlas**
 - **Ollama** (required for AI features)
 
 ## Quick Start
 
 1. **Install Ollama:** Download from [ollama.ai](https://ollama.ai) and run `ollama pull mistral`
-2. **Backend:** `cd backend && npm install && npm run db:migrate && npm run dev`
+2. **Backend:** configure `MONGODB_URI`, then run `cd backend && npm install && npm run dev`
 3. **Frontend:** `cd frontend && npm install && npm run dev`
 4. **Access:** http://localhost:3000
 
@@ -35,8 +34,7 @@ cd backend
 npm install
 npm run dev              # Start development server
 npm run build            # Compile TypeScript
-npm run db:migrate       # Apply migrations
-npm run db:seed          # Seed data (optional)
+
 npm test                 # Run tests
 npm run lint             # Check code style
 ```
@@ -59,8 +57,7 @@ npm run lint             # Check code style
    cp frontend/.env.example frontend/.env
    ```
 2. Update `.env` files with your configuration
-3. Ensure PostgreSQL is running
-4. Ensure Ollama is running: `ollama serve`
+3. Ensure Ollama is running: `ollama serve`
 
 ## Documentation
 
@@ -86,7 +83,7 @@ See [vercel.json](vercel.json) or [netlify.toml](netlify.toml) for configuration
 |-----------|-----------|
 | Frontend | React 18 + Vite + Tailwind CSS |
 | Backend | Node.js + Express.js + TypeScript |
-| Database | PostgreSQL with Knex.js migrations |
+| Database | MongoDB Atlas |
 | Real-time | Socket.IO |
 | AI | Ollama (local) |
 | Auth | JWT + bcryptjs |

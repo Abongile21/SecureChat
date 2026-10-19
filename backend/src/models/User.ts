@@ -1,4 +1,5 @@
-import db from '../config/database';
+import { randomUUID } from 'crypto';
+import { getDatabase } from '../config/database';
 
 export interface User {
   id: string;
@@ -12,31 +13,46 @@ export interface User {
   updated_at: Date;
 }
 
+const users = async () => (await getDatabase()).collection<User>('users');
+
 export const User = {
   async findById(id: string): Promise<User | undefined> {
-    return db('users').where({ id }).first();
+    return (await users()).findOne({ id }, { projection: { _id: 0 } }) as Promise<User | undefined>;
   },
 
   async findByEmail(email: string): Promise<User | undefined> {
-    return db('users').where({ email }).first();
+    return (await users()).findOne({ email }, { projection: { _id: 0 } }) as Promise<User | undefined>;
   },
 
   async create(userData: Partial<User>): Promise<User> {
-    const [user] = await db('users').insert(userData).returning('*');
+    const now = new Date();
+    const user: User = {
+      id: userData.id || randomUUID(),
+      email: userData.email || '',
+      name: userData.name || '',
+      role: userData.role || 'employee',
+      total_points: userData.total_points || 0,
+      current_rank: userData.current_rank || 0,
+      created_at: userData.created_at || now,
+      updated_at: userData.updated_at || now,
+    };
+    if (userData.password_hash !== undefined) {
+      user.password_hash = userData.password_hash;
+    }
+    await (await users()).insertOne(user);
     return user;
   },
 
   async update(id: string, userData: Partial<User>): Promise<User | undefined> {
-    const [user] = await db('users')
-      .where({ id })
-      .update(userData)
-      .returning('*');
-    return user;
+    const result = await (await users()).findOneAndUpdate(
+      { id },
+      { $set: { ...userData, updated_at: new Date() } },
+      { returnDocument: 'after', projection: { _id: 0 } }
+    );
+    return result as User | undefined;
   },
 
   async getLeaderboard(limit: number = 20): Promise<User[]> {
-    return db('users')
-      .orderBy('total_points', 'desc')
-      .limit(limit);
+    return (await users()).find({}, { projection: { _id: 0 } }).sort({ total_points: -1 }).limit(limit).toArray();
   },
 };
