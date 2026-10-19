@@ -3,6 +3,7 @@ import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import PrivateRoute from './components/PrivateRoute';
 import Layout from './components/Layout';
+import LearningCenter from './components/LearningCenter';
 
 function App() {
   return (
@@ -17,7 +18,8 @@ function App() {
           }
         >
           <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/quizzes" element={<Navigate to="/dashboard" replace />} />
+          <Route path="/learning" element={<LearningCenter />} />
+          <Route path="/quizzes" element={<Navigate to="/learning" replace />} />
           <Route path="/chat" element={<Navigate to="/dashboard" replace />} />
         </Route>
         <Route path="/" element={<Navigate to="/dashboard" replace />} />

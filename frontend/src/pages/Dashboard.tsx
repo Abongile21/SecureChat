@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import apiClient from '../services/apiClient';
-import LearningCenter from '../components/LearningCenter';
 
 type DashboardData = {
   user: { name: string; totalPoints: number; rank: number; badges: number };
@@ -85,7 +84,7 @@ export default function Dashboard() {
           <p className="mt-3 text-sm leading-7 text-slate-600">Ask SecureChat for a guided lesson or test your knowledge with a short quiz.</p>
           <div className="mt-5 flex flex-wrap gap-3">
             <button onClick={openChat} className="rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700">Chat with SecureChat</button>
-            <button onClick={() => document.getElementById('learning-center')?.scrollIntoView({ behavior: 'smooth' })} className="rounded-xl border border-slate-200 px-5 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">Browse learning</button>
+            <button onClick={() => window.location.assign('/learning')} className="rounded-xl border border-slate-200 px-5 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">Browse learning</button>
           </div>
         </div>
         <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
@@ -99,9 +98,6 @@ export default function Dashboard() {
         </div>
       </section>
 
-      <section id="learning-center" className="scroll-mt-6 pt-2">
-        <LearningCenter />
-      </section>
     </div>
   );
 }
