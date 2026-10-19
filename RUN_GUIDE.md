@@ -50,3 +50,22 @@ npm run dev
 Open `http://localhost:3000`. The API is available at `http://localhost:5000`.
 
 The backend uses one shared MongoDB client and creates its indexes automatically. No PostgreSQL, Knex migrations, Docker, or local database process is required.
+
+## Demo login
+
+If the MongoDB database is empty, create the demo account from the backend directory:
+
+```powershell
+npm run seed:demo
+```
+
+The default demo login is:
+
+```text
+Email:    demo@securechat.local
+Password: SecureChatDemo2026!
+```
+
+The command is safe to run more than once. It will not overwrite an existing user.
+To use different demo credentials, set `DEMO_USER_EMAIL`, `DEMO_USER_PASSWORD`, and
+`DEMO_USER_NAME` in `backend/.env` before running the command.

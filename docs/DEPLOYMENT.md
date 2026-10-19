@@ -23,6 +23,27 @@ SYSTEM_PROMPT=<cybersecurity-only-system-prompt>
 
 The deployed backend must be able to reach both MongoDB Atlas and the Ollama host. Add the backend's outbound IP to the Atlas network access list, or use an appropriate Atlas network policy.
 
+## Demo login
+
+If the MongoDB database is empty, create a demo user before signing in:
+
+```powershell
+cd backend
+npm run seed:demo
+```
+
+The default demo credentials are:
+
+```text
+Email:    demo@securechat.local
+Password: SecureChatDemo2026!
+```
+
+The command is safe to run repeatedly; it does not overwrite an existing user.
+Set `DEMO_USER_EMAIL`, `DEMO_USER_PASSWORD`, and `DEMO_USER_NAME` in `backend/.env`
+before running the command if you need different credentials. The demo password must
+be at least 12 characters long.
+
 ## Commands
 
 ```powershell
