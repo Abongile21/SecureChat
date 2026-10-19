@@ -71,12 +71,6 @@ SecureChat/
 │   ├── index.html
 │   ├── package.json
 │   └── .env.example
-├── backend/
-│   ├── database/
-│   │   ├── migrations/
-│   │   └── seeds/
-│   └── src/
-├── frontend/
 └── docs/
 ```
 
