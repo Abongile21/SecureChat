@@ -85,7 +85,7 @@ SecureChat/
 ### Prerequisites
 - Node.js >= 18.0.0
 - MongoDB Atlas account
-- Ollama (for local AI) - [Install Ollama](https://ollama.ai)
+- OpenRouter API for AI responses
 - npm or yarn
 
 ### Backend Setup
@@ -106,15 +106,7 @@ cp .env.example .env
 # Edit .env with your configuration
 ```
 
-4. Run database migrations:
-```bash
-```
-
-5. Seed initial data:
-```bash
-```
-
-6. Start development server:
+4. Start development server:
 ```bash
 npm run dev
 ```
@@ -155,9 +147,13 @@ API_URL=http://localhost:5000
 MONGODB_URI=mongodb+srv://abonyakatya_db_user:<db_password>@cluster0.0noe5mo.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0
 MONGODB_DB_NAME=securechat_db
 
-# Ollama (Local AI - Required)
-OLLAMA_BASE_URL=http://localhost:11434
-OLLAMA_MODEL=mistral
+# OpenRouter (AI - Required)
+OPENAI_API_BASE=https://openrouter.ai/api/v1
+OPENAI_API_KEY=your_openrouter_api_key
+OPENAI_MODEL_NAME=meta-llama/llama-3.1-8b-instruct:free
+X_OPENROUTER_TITLE=SecureChat Learning Platform
+HTTP_REFERER=https://securechat.training
+SYSTEM_PROMPT=Your cybersecurity-only SecureChat system prompt
 
 # JWT
 JWT_SECRET=your_secret_minimum_32_characters
@@ -176,42 +172,9 @@ VITE_APP_NAME=SecureChat
 VITE_APP_VERSION=1.0.0
 ```
 
-## 🤖 Ollama Setup (Required)
+## 🤖 OpenRouter Setup (Required)
 
-Ollama provides local AI capabilities without requiring external API keys. Follow these steps to set up:
-
-### Install Ollama
-1. Download and install from [ollama.ai](https://ollama.ai)
-2. Verify installation:
-```bash
-ollama --version
-```
-
-### Pull a Model
-```bash
-# Pull mistral model (recommended for SecureChat)
-ollama pull mistral
-
-# Or pull another model:
-ollama pull neural-chat  # Good for conversational AI
-ollama pull dolphin-mixtral  # Larger model with better reasoning
-```
-
-### Start Ollama Service
-```bash
-# Start Ollama in the background (runs on port 11434)
-ollama serve
-
-# In another terminal, verify it's running:
-curl http://localhost:11434/api/tags
-```
-
-### Configuration
-Update your `.env` file:
-```env
-OLLAMA_BASE_URL=http://localhost:11434
-OLLAMA_MODEL=mistral  # or your chosen model
-```
+Create an OpenRouter API key and set `OPENAI_API_BASE`, `OPENAI_API_KEY`, and `OPENAI_MODEL_NAME` in `backend/.env`. The API key must remain server-side and must never be committed or exposed through frontend variables.
 
 ## 📊 Database Schema
 
@@ -300,7 +263,7 @@ SecureChat is serverless-compatible and deploys to **Vercel** or **Netlify**. Bo
 
 ### Prerequisites for Production
 - MongoDB Atlas cluster
-- Ollama instance (self-hosted or cloud)
+- OpenRouter API key
 - Environment variables configured securely
 
 ### Vercel Deployment
@@ -310,8 +273,11 @@ SecureChat is serverless-compatible and deploys to **Vercel** or **Netlify**. Bo
 3. Set environment variables in dashboard:
    ```
    MONGODB_URI=mongodb+srv://abonyakatya_db_user:<db_password>@cluster0.0noe5mo.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0
-   OLLAMA_BASE_URL=https://your-ollama-instance.com
-   OLLAMA_MODEL=mistral
+   OPENAI_API_BASE=https://openrouter.ai/api/v1
+   OPENAI_API_KEY=your_openrouter_api_key
+   OPENAI_MODEL_NAME=meta-llama/llama-3.1-8b-instruct:free
+   X_OPENROUTER_TITLE=SecureChat Learning Platform
+   HTTP_REFERER=https://securechat.training
    JWT_SECRET=generate-strong-random-secret-32-chars
    FRONTEND_URL=your-vercel-domain.vercel.app
    ```
@@ -332,7 +298,7 @@ See [netlify.toml](netlify.toml) for configuration.
 Before production:
 - ✅ `JWT_SECRET` is strong (32+ characters)
 - ✅ `MONGODB_URI` points to MongoDB Atlas (not a local database)
-- ✅ `OLLAMA_BASE_URL` points to production Ollama
+- ✅ OpenRouter API credentials are configured server-side
 - ✅ Environment variables set in deployment dashboard (not in code)
 - ✅ `NODE_ENV=production`
 - ✅ HTTPS enforced

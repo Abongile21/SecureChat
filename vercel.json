@@ -5,9 +5,15 @@
   "public": false,
   "env": {
     "NODE_ENV": "production",
-    "OLLAMA_BASE_URL": "@ollama_base_url",
-    "OLLAMA_MODEL": "@ollama_model",
-    "DATABASE_URL": "@database_url",
+    "OPENAI_API_BASE": "@openai_api_base",
+    "OPENAI_API_KEY": "@openai_api_key",
+    "OPENAI_MODEL_NAME": "@openai_model_name",
+    "OPENAI_TIMEOUT_MS": "@openai_timeout_ms",
+    "X_OPENROUTER_TITLE": "@x_openrouter_title",
+    "HTTP_REFERER": "@http_referer",
+    "SYSTEM_PROMPT": "@system_prompt",
+    "MONGODB_URI": "@mongodb_uri",
+    "MONGODB_DB_NAME": "@mongodb_db_name",
     "JWT_SECRET": "@jwt_secret",
     "FRONTEND_URL": "@frontend_url"
   },

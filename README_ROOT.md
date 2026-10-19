@@ -19,7 +19,7 @@ Cybersecurity awareness training platform with AI-powered learning, real-time ch
 
 ## Quick Start
 
-1. **Install Ollama:** Download from [ollama.ai](https://ollama.ai) and run `ollama pull mistral`
+1. **Create an OpenRouter API key:** Configure it in `backend/.env`.
 2. **Backend:** configure `MONGODB_URI`, then run `cd backend && npm install && npm run dev`
 3. **Frontend:** `cd frontend && npm install && npm run dev`
 4. **Access:** http://localhost:3000
@@ -57,7 +57,7 @@ npm run lint             # Check code style
    cp frontend/.env.example frontend/.env
    ```
 2. Update `.env` files with your configuration
-3. Ensure Ollama is running: `ollama serve`
+3. Ensure the OpenRouter API key and model settings are configured.
 
 ## Documentation
 

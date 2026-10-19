@@ -247,16 +247,16 @@ See [API.md](API.md) for full schema details.
 - Frontend: Static React build (dist/) served by Vercel CDN
 - Backend: Serverless functions in netlify/functions
 - Database: MongoDB Atlas
-- Ollama: Self-hosted or cloud endpoint
+- AI: OpenRouter API
 
 **Netlify (Frontend + Serverless Backend):**
 - Frontend: Static React build served by Netlify CDN
 - Backend: Functions in netlify/functions/ directory
-- Database: Managed PostgreSQL (Supabase/Railway)
+- Database: MongoDB Atlas
 - Ollama: Self-hosted or cloud endpoint
 
 **Local Development:**
-- 3 terminals: Ollama, Backend (port 5000), Frontend (port 3000)
+- 2 terminals: Backend (port 5000), Frontend (port 3000)
 - Direct API calls via HTTP
 - Socket.IO WebSocket connections
 
@@ -267,8 +267,12 @@ See [API.md](API.md) for full schema details.
 NODE_ENV=production
 PORT=5000
 MONGODB_URI=mongodb+srv://abonyakatya_db_user:<db_password>@cluster0.0noe5mo.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0
-OLLAMA_BASE_URL=http://localhost:11434
-OLLAMA_MODEL=mistral
+OPENAI_API_BASE=https://openrouter.ai/api/v1
+OPENAI_API_KEY=your_openrouter_api_key
+OPENAI_MODEL_NAME=meta-llama/llama-3.1-8b-instruct:free
+X_OPENROUTER_TITLE=SecureChat Learning Platform
+HTTP_REFERER=https://securechat.training
+SYSTEM_PROMPT=Your cybersecurity-only SecureChat system prompt
 JWT_SECRET=strong-32-char-minimum
 JWT_EXPIRE=7d
 FRONTEND_URL=https://domain.com

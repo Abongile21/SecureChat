@@ -6,26 +6,20 @@ Cybersecurity awareness training platform with AI-powered learning, real-time ch
 - **Frontend**: React 18 + Vite + Tailwind CSS + Socket.IO
 - **Backend**: Node.js + Express + TypeScript + Socket.IO
 - **Database**: MongoDB Atlas with the official MongoDB Node.js driver
-- **AI**: Ollama (local, required)
+- **AI**: OpenRouter API with `meta-llama/llama-3.1-8b-instruct:free`
 - **Auth**: JWT + bcryptjs
 - **Deployment**: Vercel or Netlify
 
 ## Quick Setup (3 steps)
 
-**Terminal 1 - Ollama:**
-```bash
-ollama serve
-# Requires: ollama pull mistral
-```
-
-**Terminal 2 - Backend:**
+**Terminal 1 - Backend:**
 ```bash
 cd backend && npm install
 cp .env.example .env
 npm run dev
 ```
 
-**Terminal 3 - Frontend:**
+**Terminal 2 - Frontend:**
 ```bash
 cd frontend && npm install
 cp .env.example .env
@@ -35,7 +29,7 @@ npm run dev
 Visit: http://localhost:3000
 
 ## Key Features
-✅ AI-powered cybersecurity learning (Ollama)
+✅ AI-powered cybersecurity learning (OpenRouter)
 ✅ Real-time chat with Socket.IO
 ✅ Phishing simulation scenarios
 ✅ Gamification (points, badges, leaderboard)
@@ -69,8 +63,12 @@ SecureChat/
 
 **Backend** (backend/.env):
 ```env
-OLLAMA_BASE_URL=http://localhost:11434
-OLLAMA_MODEL=mistral
+OPENAI_API_BASE=https://openrouter.ai/api/v1
+OPENAI_API_KEY=your_openrouter_api_key
+OPENAI_MODEL_NAME=meta-llama/llama-3.1-8b-instruct:free
+X_OPENROUTER_TITLE=SecureChat Learning Platform
+HTTP_REFERER=https://securechat.training
+SYSTEM_PROMPT=Your cybersecurity-only SecureChat system prompt
 MONGODB_URI=mongodb+srv://abonyakatya_db_user:<db_password>@cluster0.0noe5mo.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0
 JWT_SECRET=your_secret_32_chars_min
 FRONTEND_URL=http://localhost:3000

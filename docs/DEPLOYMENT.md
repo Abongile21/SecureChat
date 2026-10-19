@@ -13,8 +13,12 @@ MONGODB_URI=mongodb+srv://abonyakatya_db_user:<db_password>@cluster0.0noe5mo.mon
 MONGODB_DB_NAME=securechat_db
 JWT_SECRET=<long-random-secret>
 FRONTEND_URL=https://your-frontend.example
-OLLAMA_BASE_URL=http://ollama-host:11434
-OLLAMA_MODEL=mistral
+OPENAI_API_BASE=https://openrouter.ai/api/v1
+OPENAI_API_KEY=<server-side-openrouter-key>
+OPENAI_MODEL_NAME=meta-llama/llama-3.1-8b-instruct:free
+X_OPENROUTER_TITLE=SecureChat Learning Platform
+HTTP_REFERER=https://securechat.training
+SYSTEM_PROMPT=<cybersecurity-only-system-prompt>
 ```
 
 The deployed backend must be able to reach both MongoDB Atlas and the Ollama host. Add the backend's outbound IP to the Atlas network access list, or use an appropriate Atlas network policy.

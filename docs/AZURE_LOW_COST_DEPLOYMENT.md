@@ -5,7 +5,7 @@ SecureChat can run as two Azure applications:
 - Azure Static Web Apps for the React/Vite frontend
 - Azure App Service for the Node.js/Express backend
 
-MongoDB Atlas remains the managed database and Ollama must be hosted at a reachable endpoint. Docker and PostgreSQL are not part of this deployment.
+MongoDB Atlas remains the managed database and the backend calls OpenRouter for AI responses. Docker and PostgreSQL are not part of this deployment.
 
 ## App Service settings
 
@@ -18,8 +18,12 @@ MONGODB_URI=mongodb+srv://abonyakatya_db_user:<db_password>@cluster0.0noe5mo.mon
 MONGODB_DB_NAME=securechat_db
 JWT_SECRET=<long-random-secret>
 FRONTEND_URL=https://your-static-app.example
-OLLAMA_BASE_URL=https://your-ollama-endpoint.example
-OLLAMA_MODEL=mistral
+OPENAI_API_BASE=https://openrouter.ai/api/v1
+OPENAI_API_KEY=<server-side-openrouter-key>
+OPENAI_MODEL_NAME=meta-llama/llama-3.1-8b-instruct:free
+X_OPENROUTER_TITLE=SecureChat Learning Platform
+HTTP_REFERER=https://securechat.training
+SYSTEM_PROMPT=<cybersecurity-only-system-prompt>
 ```
 
 Allow the App Service outbound addresses in MongoDB Atlas Network Access. Keep all secrets server-side.

@@ -2,10 +2,27 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-export const ollamaConfig = {
-  baseURL: process.env.OLLAMA_BASE_URL || 'http://localhost:11434',
-  model: process.env.OLLAMA_MODEL || 'mistral',
-  timeout: 60000, // 60 seconds
+const requiredEnvironmentValue = (name: string): string => {
+  const value = process.env[name]?.trim();
+  if (!value) {
+    throw new Error(`${name} must be configured`);
+  }
+  return value;
 };
 
-export default ollamaConfig;
+const timeout = Number.parseInt(requiredEnvironmentValue('OPENAI_TIMEOUT_MS'), 10);
+if (!Number.isFinite(timeout) || timeout <= 0) {
+  throw new Error('OPENAI_TIMEOUT_MS must be a positive integer');
+}
+
+export const openRouterConfig = {
+  baseURL: requiredEnvironmentValue('OPENAI_API_BASE'),
+  apiKey: requiredEnvironmentValue('OPENAI_API_KEY'),
+  model: requiredEnvironmentValue('OPENAI_MODEL_NAME'),
+  title: requiredEnvironmentValue('X_OPENROUTER_TITLE'),
+  referer: requiredEnvironmentValue('HTTP_REFERER'),
+  systemPrompt: requiredEnvironmentValue('SYSTEM_PROMPT'),
+  timeout,
+};
+
+export default openRouterConfig;
