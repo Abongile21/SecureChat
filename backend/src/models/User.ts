@@ -55,4 +55,15 @@ export const User = {
   async getLeaderboard(limit: number = 20): Promise<User[]> {
     return (await users()).find({}, { projection: { _id: 0 } }).sort({ total_points: -1 }).limit(limit).toArray();
   },
+
+  async getRank(id: string): Promise<number> {
+    const user = await User.findById(id);
+    if (!user) return 0;
+    return (await (await getDatabase()).collection<User>('users').countDocuments({
+      $or: [
+        { total_points: { $gt: user.total_points } },
+        { total_points: user.total_points, id: { $lt: user.id } },
+      ],
+    })) + 1;
+  },
 };

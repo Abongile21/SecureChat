@@ -76,6 +76,12 @@ export default function Chat() {
   }, [chatStorageKey]);
 
   useEffect(() => {
+    const openChat = () => setIsChatOpen(true);
+    window.addEventListener('securechat:open', openChat);
+    return () => window.removeEventListener('securechat:open', openChat);
+  }, []);
+
+  useEffect(() => {
     if (!isChatOpen) return;
     const closeOnEscape = (event: KeyboardEvent) => {
       if (event.key === 'Escape') setIsChatOpen(false);
