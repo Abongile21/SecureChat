@@ -8,6 +8,7 @@ type DashboardData = {
     activeSessions: number;
     completedTrainings: number;
     totalTrainings: number;
+    completedLessons: number;
     phishingQuizzes: number;
     weeklyConsistency: number;
   };
@@ -15,7 +16,7 @@ type DashboardData = {
 
 const initialData: DashboardData = {
   user: { name: 'there', totalPoints: 0, rank: 0, badges: 0 },
-  activity: { chatMessages: 0, activeSessions: 0, completedTrainings: 0, totalTrainings: 0, phishingQuizzes: 0, weeklyConsistency: 0 },
+  activity: { chatMessages: 0, activeSessions: 0, completedTrainings: 0, totalTrainings: 0, completedLessons: 0, phishingQuizzes: 0, weeklyConsistency: 0 },
 };
 
 export default function Dashboard() {
@@ -87,6 +88,7 @@ export default function Dashboard() {
           <ul className="mt-4 space-y-3 text-sm text-slate-400">
             <li className="flex items-center justify-between rounded-2xl bg-white/5 px-3 py-2">Chat messages <span className="text-cyan-300">{activity.chatMessages}</span></li>
             <li className="flex items-center justify-between rounded-2xl bg-white/5 px-3 py-2">Learning sessions <span className="text-cyan-300">{activity.activeSessions}</span></li>
+            <li className="flex items-center justify-between rounded-2xl bg-white/5 px-3 py-2">Lessons completed <span className="text-cyan-300">{activity.completedLessons}</span></li>
             <li className="flex items-center justify-between rounded-2xl bg-white/5 px-3 py-2">Phishing quizzes <span className="text-cyan-300">{activity.phishingQuizzes}</span></li>
           </ul>
         </div>

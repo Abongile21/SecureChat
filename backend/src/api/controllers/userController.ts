@@ -3,6 +3,7 @@ import { AuthRequest } from '../middleware/auth';
 import { AppError } from '../middleware/errorHandler';
 import { User } from '../../models/User';
 import { ChatSession } from '../../models/ChatSession';
+import { getDatabase } from '../../config/database';
 
 export const getUserProfile = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
@@ -26,17 +27,26 @@ export const getDashboard = async (req: AuthRequest, res: Response): Promise<voi
     const user = await User.findById(userId);
     if (!user) throw new AppError(404, 'User not found');
     const rank = await User.getRank(userId);
+    const badges = [100, 500, 2000].filter((threshold) => user.total_points >= threshold).length;
     const sessions = await ChatSession.getUserSessions(userId);
     const messages = (await Promise.all(sessions.map((session) => ChatSession.getMessages(session.id, 1000)))).flat();
+    const database = await getDatabase();
+    const [totalTrainings, completedTrainings] = await Promise.all([
+      database.collection('quizzes').countDocuments(),
+      database.collection('quiz_attempts').countDocuments({ user_id: userId, score: { $gte: 70 } }),
+    ]);
+    const phishingQuizzes = await database.collection('quiz_attempts').countDocuments({ user_id: userId });
+    const completedLessons = await database.collection('lesson_progress').countDocuments({ user_id: userId });
     res.status(200).json({
-      user: { name: user.name, totalPoints: user.total_points, rank, badges: 0 },
+      user: { name: user.name, totalPoints: user.total_points, rank, badges },
       activity: {
         chatMessages: messages.length,
         activeSessions: sessions.length,
-        completedTrainings: 0,
-        totalTrainings: 0,
-        phishingQuizzes: 0,
-        weeklyConsistency: sessions.length || messages.length ? 100 : 0,
+        completedTrainings,
+        totalTrainings,
+        completedLessons,
+        phishingQuizzes,
+        weeklyConsistency: totalTrainings ? Math.round((completedTrainings / totalTrainings) * 100) : 0,
       },
     });
   } catch (error) {

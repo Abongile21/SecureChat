@@ -11,6 +11,7 @@ import chatRoutes from './api/routes/chatRoutes';
 import userRoutes from './api/routes/userRoutes';
 import gamificationRoutes from './api/routes/gamificationRoutes';
 import analyticsRoutes from './api/routes/analyticsRoutes';
+import quizRoutes from './api/routes/quizRoutes';
 import { closeDatabase } from './config/database';
 
 // Load environment variables
@@ -96,6 +97,7 @@ app.use('/api/chat', chatRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/gamification', gamificationRoutes);
 app.use('/api/analytics', analyticsRoutes);
+app.use('/api/quizzes', quizRoutes);
 
 // 404 handler
 app.use((_req: Request, res: Response) => {

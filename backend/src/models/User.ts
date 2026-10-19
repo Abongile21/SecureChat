@@ -56,6 +56,15 @@ export const User = {
     return (await users()).find({}, { projection: { _id: 0 } }).sort({ total_points: -1 }).limit(limit).toArray();
   },
 
+  async addPoints(id: string, points: number): Promise<User | undefined> {
+    const result = await (await users()).findOneAndUpdate(
+      { id },
+      { $inc: { total_points: points }, $set: { updated_at: new Date() } },
+      { returnDocument: 'after', projection: { _id: 0 } }
+    );
+    return result as User | undefined;
+  },
+
   async getRank(id: string): Promise<number> {
     const user = await User.findById(id);
     if (!user) return 0;
@@ -65,5 +74,9 @@ export const User = {
         { total_points: user.total_points, id: { $lt: user.id } },
       ],
     })) + 1;
+  },
+
+  async count(): Promise<number> {
+    return (await users()).countDocuments();
   },
 };

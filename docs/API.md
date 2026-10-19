@@ -190,6 +190,37 @@
 
 ---
 
+## Quiz Endpoints
+
+### List Lessons
+**Endpoint:** `GET /api/quizzes/lessons`
+**Authentication:** Required
+**Description:** Get the cybersecurity lessons available to the learner.
+
+### Complete a Lesson
+**Endpoint:** `POST /api/quizzes/lessons/:lessonId/complete`
+**Authentication:** Required
+**Description:** Mark a lesson complete once. Each lesson awards its completion points only once per user.
+
+### List Quizzes
+**Endpoint:** `GET /api/quizzes`
+**Authentication:** Required
+**Description:** Get cybersecurity quizzes without exposing answer keys.
+
+### Submit a Quiz
+**Endpoint:** `POST /api/quizzes/:quizId/submit`
+**Authentication:** Required
+**Request:**
+```json
+{
+  "answers": [1, 2, 2]
+}
+```
+
+**Description:** Scores the quiz, stores the latest attempt, and awards points for correct answers. Retaking a quiz only awards the difference when the new score improves.
+
+---
+
 ## Analytics Endpoints
 
 ### Get Engagement Metrics

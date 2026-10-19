@@ -1,5 +1,6 @@
 import { randomUUID } from 'crypto';
 import { getDatabase } from '../config/database';
+import { User } from './User';
 
 export interface ChatSession {
   id: string;
@@ -66,6 +67,13 @@ export const ChatSession = {
       created_at: new Date(),
     };
     await (await messages()).insertOne(message);
+    await User.addPoints(userId, 5);
+    await (await getDatabase()).collection('points_ledger').insertOne({
+      user_id: userId,
+      points: 5,
+      reason: 'Chat message',
+      created_at: message.created_at,
+    });
     return message;
   },
 
