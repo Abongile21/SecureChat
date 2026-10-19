@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import axios from 'axios';
 import { chatService } from '../services/chatService';
 import { useAuth } from '../context/AuthContext';
@@ -42,6 +42,7 @@ export default function Chat() {
   const [isSending, setIsSending] = useState(false);
   const [error, setError] = useState('');
   const [showOptions, setShowOptions] = useState(false);
+  const messageHistoryRef = useRef<HTMLDivElement>(null);
 
   const chatStorageKey = user ? `securechat.currentChatId.${user.id}` : 'securechat.currentChatId';
 
@@ -93,6 +94,13 @@ export default function Chat() {
   const selected = conversations.find((conversation) => conversation.id === selectedId) ?? conversations[0];
   const visibleMessages = selected.messages.filter((message) => message.text.toLowerCase().includes(messageQuery.toLowerCase()));
 
+  useEffect(() => {
+    const history = messageHistoryRef.current;
+    if (history) {
+      history.scrollTo({ top: history.scrollHeight, behavior: 'smooth' });
+    }
+  }, [isChatOpen, selectedId, visibleMessages.length, isSending]);
+
   const sendMessage = async () => {
     const text = draft.trim();
     if (!text || isSending || !selected) return;
@@ -107,6 +115,7 @@ export default function Chat() {
       const response = await chatService.sendMessage(selected.id, text);
       const assistantMessage: Message = { id: `${response.data.messageId}:assistant`, text: response.data.botResponse, time: new Date(response.data.timestamp).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }), mine: false };
       setConversations((current) => current.map((conversation) => conversation.id === selected.id ? { ...conversation, preview: assistantMessage.text, messages: [...conversation.messages, assistantMessage] } : conversation));
+      window.dispatchEvent(new Event('securechat:data-updated'));
     } catch {
       setError('Your message could not be sent. Please try again.');
     } finally {
@@ -141,7 +150,7 @@ export default function Chat() {
           <button type="button" role="menuitem" onClick={() => usePrompt('How should I handle a suspicious link?')}>Suspicious links</button>
         </div>}
         <div className="message-toolbar"><span>Learning session</span><label className="message-search"><Icon name="search" /><span className="sr-only">Search lesson</span><input id="message-search" value={messageQuery} onChange={(event) => setMessageQuery(event.target.value)} placeholder="Search this lesson" /></label></div>
-        <div className="message-history" aria-live="polite">
+        <div ref={messageHistoryRef} className="message-history" aria-live="polite">
           {error && <p role="alert" className="mb-3 text-sm text-rose-300">{error}</p>}
           {visibleMessages.length ? visibleMessages.map((message) => <div key={message.id} className={`message-row ${message.mine ? 'mine' : ''}`}><div className="message-bubble">{message.replyTo && <div className="reply-preview">Replying to: {message.replyTo}</div>}<p>{message.text}</p><div className="message-meta"><time>{message.time}</time>{message.mine && <span aria-label={message.read ? 'Read' : 'Delivered'} className={message.read ? 'read' : ''}><Icon name="check" /><Icon name="check" /></span>}<button onClick={() => setReplyTo(message)} aria-label={`Reply to ${message.text}`}>Reply</button></div></div></div>) : <div className="empty-state"><span className="empty-icon"><Icon name="search" /></span><strong>No messages found</strong><span>Try another search term.</span></div>}
         </div>

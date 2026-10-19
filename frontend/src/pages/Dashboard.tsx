@@ -25,11 +25,26 @@ export default function Dashboard() {
 
   useEffect(() => {
     let active = true;
-    apiClient.get<DashboardData>('/users/dashboard')
-      .then((response) => { if (active) setData(response.data); })
-      .catch(() => { if (active) setError('Dashboard data is temporarily unavailable.'); })
-      .finally(() => { if (active) setIsLoading(false); });
-    return () => { active = false; };
+    const loadDashboard = async () => {
+      setIsLoading(true);
+      try {
+        const response = await apiClient.get<DashboardData>('/users/dashboard');
+        if (active) {
+          setData(response.data);
+          setError('');
+        }
+      } catch {
+        if (active) setError('Dashboard data is temporarily unavailable.');
+      } finally {
+        if (active) setIsLoading(false);
+      }
+    };
+    void loadDashboard();
+    window.addEventListener('securechat:data-updated', loadDashboard);
+    return () => {
+      active = false;
+      window.removeEventListener('securechat:data-updated', loadDashboard);
+    };
   }, []);
 
   const { user, activity } = data;
