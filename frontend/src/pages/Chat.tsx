@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
+import axios from 'axios';
 import { chatService } from '../services/chatService';
+import { useAuth } from '../context/AuthContext';
 
 type Message = { id: string | number; text: string; time: string; mine: boolean; read?: boolean; replyTo?: string };
 type Conversation = { id: string; name: string; initials: string; preview: string; time: string; unread: number; messages: Message[] };
@@ -30,6 +32,7 @@ function Icon({ name }: { name: 'search' | 'plus' | 'arrow' | 'check' | 'more' |
 }
 
 export default function Chat() {
+  const { user } = useAuth();
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [conversations, setConversations] = useState(initialConversations);
   const [selectedId, setSelectedId] = useState('securechat-demo');
@@ -38,19 +41,30 @@ export default function Chat() {
   const [replyTo, setReplyTo] = useState<Message | null>(null);
   const [isSending, setIsSending] = useState(false);
   const [error, setError] = useState('');
+  const [showOptions, setShowOptions] = useState(false);
+
+  const chatStorageKey = user ? `securechat.currentChatId.${user.id}` : 'securechat.currentChatId';
 
   useEffect(() => {
     let active = true;
     const loadConversation = async () => {
       try {
-        const storedChatId = localStorage.getItem('securechat.currentChatId');
-        const response = storedChatId
-          ? await chatService.getChatHistory(storedChatId)
-          : await chatService.startNewChat();
+        let storedChatId = localStorage.getItem(chatStorageKey);
+        let response;
+        try {
+          response = storedChatId
+            ? await chatService.getChatHistory(storedChatId)
+            : await chatService.startNewChat();
+        } catch (historyError) {
+          if (!storedChatId || !axios.isAxiosError(historyError) || historyError.response?.status !== 404) throw historyError;
+          localStorage.removeItem(chatStorageKey);
+          storedChatId = null;
+          response = await chatService.startNewChat();
+        }
         const chatId = storedChatId || response.data.chatId;
         const history = storedChatId ? response.data.messages : [];
         if (!active) return;
-        localStorage.setItem('securechat.currentChatId', chatId);
+        localStorage.setItem(chatStorageKey, chatId);
         setConversations([{ id: chatId, name: 'SecureChat AI', initials: 'AI', preview: 'Your private learning session.', time: 'Now', unread: 0, messages: history.map((message: { id: string; role: string; content: string; timestamp: string }) => ({ id: message.id, text: message.content, time: new Date(message.timestamp).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }), mine: message.role === 'user', read: true })) }]);
         setSelectedId(chatId);
       } catch {
@@ -59,7 +73,7 @@ export default function Chat() {
     };
     void loadConversation();
     return () => { active = false; };
-  }, []);
+  }, [chatStorageKey]);
 
   useEffect(() => {
     if (!isChatOpen) return;
@@ -94,6 +108,11 @@ export default function Chat() {
     }
   };
 
+  const usePrompt = (prompt: string) => {
+    setDraft(prompt);
+    setShowOptions(false);
+  };
+
   return (
     <>
       <button className="chat-launcher" type="button" aria-label="Open SecureChat assistant" title="Open SecureChat assistant" onClick={() => setIsChatOpen(true)}>
@@ -107,14 +126,20 @@ export default function Chat() {
           <div className="chat-panel">
         <header className="chat-header">
           <span className="avatar">{selected.initials}</span><div className="chat-person"><strong>{selected.name}</strong><span>Cybersecurity learning topic</span></div>
-          <div className="chat-actions"><button className="icon-button" aria-label="Search lesson" title="Search lesson" onClick={() => document.getElementById('message-search')?.focus()}><Icon name="search" /></button><button className="icon-button" aria-label="More topic options" title="More options"><Icon name="more" /></button></div>
+          <div className="chat-actions"><button className="icon-button" aria-label="Search lesson" title="Search lesson" onClick={() => document.getElementById('message-search')?.focus()}><Icon name="search" /></button><button className="icon-button" aria-label="Show SecureChat question options" title="Question options" onClick={() => setShowOptions((current) => !current)}><Icon name="more" /></button></div>
         </header>
+        {showOptions && <div className="chat-options" role="menu" aria-label="SecureChat question options">
+          <span className="chat-options-label">Ask SecureChat about</span>
+          <button type="button" role="menuitem" onClick={() => usePrompt('How can I identify a phishing email?')}>Phishing emails</button>
+          <button type="button" role="menuitem" onClick={() => usePrompt('What makes a password secure?')}>Password safety</button>
+          <button type="button" role="menuitem" onClick={() => usePrompt('How should I handle a suspicious link?')}>Suspicious links</button>
+        </div>}
         <div className="message-toolbar"><span>Learning session</span><label className="message-search"><Icon name="search" /><span className="sr-only">Search lesson</span><input id="message-search" value={messageQuery} onChange={(event) => setMessageQuery(event.target.value)} placeholder="Search this lesson" /></label></div>
         <div className="message-history" aria-live="polite">
           {error && <p role="alert" className="mb-3 text-sm text-rose-300">{error}</p>}
           {visibleMessages.length ? visibleMessages.map((message) => <div key={message.id} className={`message-row ${message.mine ? 'mine' : ''}`}><div className="message-bubble">{message.replyTo && <div className="reply-preview">Replying to: {message.replyTo}</div>}<p>{message.text}</p><div className="message-meta"><time>{message.time}</time>{message.mine && <span aria-label={message.read ? 'Read' : 'Delivered'} className={message.read ? 'read' : ''}><Icon name="check" /><Icon name="check" /></span>}<button onClick={() => setReplyTo(message)} aria-label={`Reply to ${message.text}`}>Reply</button></div></div></div>) : <div className="empty-state"><span className="empty-icon"><Icon name="search" /></span><strong>No messages found</strong><span>Try another search term.</span></div>}
         </div>
-        <div className="composer-wrap">{replyTo && <div className="reply-bar"><span>Replying to <strong>{replyTo.text}</strong></span><button onClick={() => setReplyTo(null)} aria-label="Cancel reply">Cancel</button></div>}<div className="typing-indicator">SecureChat is ready to help<span>...</span></div><form className="composer" onSubmit={(event) => { event.preventDefault(); sendMessage(); }}><button type="button" className="icon-button" aria-label="Add reaction" title="Add reaction"><Icon name="smile" /></button><input value={draft} onChange={(event) => setDraft(event.target.value)} placeholder="Ask a cybersecurity question" aria-label={`Ask about ${selected.name}`} /><button type="submit" className="send-button" aria-label="Send question" title="Send question"><Icon name="send" /></button></form></div>
+        <div className="composer-wrap">{replyTo && <div className="reply-bar"><span>Replying to <strong>{replyTo.text}</strong></span><button onClick={() => setReplyTo(null)} aria-label="Cancel reply">Cancel</button></div>}<div className="typing-indicator">{isSending ? 'SecureChat is thinking' : 'SecureChat is ready to help'}<span>...</span></div><form className="composer" onSubmit={(event) => { event.preventDefault(); void sendMessage(); }}><button type="button" className="icon-button" aria-label="Show question options" title="Question options" onClick={() => setShowOptions(true)}><Icon name="smile" /></button><input value={draft} onChange={(event) => setDraft(event.target.value)} placeholder="Ask a cybersecurity question" aria-label={`Ask about ${selected.name}`} disabled={isSending} /><button type="submit" className="send-button" aria-label="Send question" title="Send question" disabled={isSending || !draft.trim()}><Icon name="send" /></button></form></div>
           </div>
           </div>
         </section>

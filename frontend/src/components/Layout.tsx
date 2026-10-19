@@ -1,5 +1,6 @@
 import { Outlet, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import Chat from '../pages/Chat';
 
 export default function Layout() {
   const { logout } = useAuth();
@@ -16,8 +17,8 @@ export default function Layout() {
         <header className="app-header mb-6 px-1 py-4">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             <div>
-              <p className="text-sm font-semibold uppercase tracking-[0.25em] text-slate-500">SecureChat</p>
-              <h1 className="text-xl font-semibold text-slate-900">Cybersecurity learning, made simple</h1>
+              <p className="text-sm font-semibold uppercase tracking-[0.25em] text-blue-600">SecureChat</p>
+              <h1 className="text-xl font-semibold text-slate-900">Your secure cybersecurity learning space</h1>
             </div>
             <div className="flex flex-wrap items-center gap-3">
               <button
@@ -34,6 +35,7 @@ export default function Layout() {
           <Outlet />
         </main>
       </div>
+      <Chat />
     </div>
   );
 }

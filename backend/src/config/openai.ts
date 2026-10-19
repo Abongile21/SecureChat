@@ -16,7 +16,7 @@ if (!Number.isFinite(timeout) || timeout <= 0) {
 }
 
 export const openRouterConfig = {
-  baseURL: requiredEnvironmentValue('OPENAI_API_BASE'),
+  baseURL: requiredEnvironmentValue('OPENAI_API_BASE').replace(/\/+$/, ''),
   apiKey: requiredEnvironmentValue('OPENAI_API_KEY'),
   model: requiredEnvironmentValue('OPENAI_MODEL_NAME'),
   title: requiredEnvironmentValue('X_OPENROUTER_TITLE'),

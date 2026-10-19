@@ -64,6 +64,7 @@ export const getChatHistory = async (req: AuthRequest, res: Response): Promise<v
       ]),
     });
   } catch (error) {
+    if (error instanceof AppError) throw error;
     throw new AppError(500, 'Failed to fetch chat history');
   }
 };
@@ -77,6 +78,7 @@ export const startNewChat = async (req: AuthRequest, res: Response): Promise<voi
       createdAt: session.started_at,
     });
   } catch (error) {
+    if (error instanceof AppError) throw error;
     throw new AppError(500, 'Failed to start new chat');
   }
 };

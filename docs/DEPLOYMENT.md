@@ -60,3 +60,7 @@ VITE_API_URL=https://your-backend.example/api
 ```
 
 MongoDB Atlas indexes are created automatically on backend startup. There are no PostgreSQL migration steps.
+
+Chat data is persisted in MongoDB in the `chat_sessions` and `chat_messages`
+collections. Each chat endpoint requires a valid JWT and verifies that the
+session belongs to the signed-in user before reading or writing messages.

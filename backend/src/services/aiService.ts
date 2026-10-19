@@ -1,5 +1,6 @@
 import axios from 'axios';
 import openRouterConfig from '../config/openai';
+import logger from '../config/logger';
 
 const MAX_MESSAGE_LENGTH = 2000;
 const MAX_CONTEXT_MESSAGES = 10;
@@ -25,7 +26,25 @@ const requestCompletion = async (messages: ChatMessage[]): Promise<string> => {
     model: openRouterConfig.model,
     messages,
   });
-  return response.data.choices?.[0]?.message?.content || 'Unable to generate a response.';
+  const content = response.data?.choices?.[0]?.message?.content;
+  if (typeof content !== 'string' || !content.trim()) {
+    throw new Error('AI provider returned an empty response');
+  }
+  return content.trim();
+};
+
+const localCybersecurityGuidance = (message: string): string => {
+  const lowerMessage = message.toLowerCase();
+  if (lowerMessage.includes('phish') || lowerMessage.includes('email')) {
+    return 'Check the sender address, unexpected urgency, links, attachments, and requests for credentials. Do not click first; verify through a trusted channel and report suspicious messages.';
+  }
+  if (lowerMessage.includes('password') || lowerMessage.includes('passphrase')) {
+    return 'Use a unique passphrase for every account, store it in a reputable password manager, enable MFA, and never share verification codes.';
+  }
+  if (lowerMessage.includes('link') || lowerMessage.includes('url')) {
+    return 'Treat unexpected links as suspicious. Inspect the real domain, avoid shortened URLs from unknown senders, and navigate to the service using a trusted bookmark instead.';
+  }
+  return 'Use MFA, unique passwords, software updates, least privilege, and careful verification of unexpected requests. Share the specific cybersecurity situation and I can help you assess it.';
 };
 
 export const generateChatbotResponse = async (
@@ -43,11 +62,11 @@ export const generateChatbotResponse = async (
     ]);
   } catch (error) {
     if (axios.isAxiosError(error)) {
-      console.error('OpenRouter API error:', error.message);
-      return 'I\'m unable to reach the AI service right now, but I can still help with general cybersecurity guidance.';
+      logger.warn(`AI provider request failed (status ${error.response?.status ?? 'unknown'}): ${error.message}; using local guidance`);
+    } else {
+      logger.error(`Unexpected AI service error: ${error instanceof Error ? error.message : 'unknown error'}; using local guidance`);
     }
-    console.error('Unexpected AI service error:', error);
-    return 'I\'m unable to process your request at the moment.';
+    return localCybersecurityGuidance(boundedMessage);
   }
 };
 
